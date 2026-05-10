@@ -54,10 +54,13 @@ No login. No email capture. No "sign up to see your full results." Ever.
 - All emissions reported in kg CO₂e. Aggregate to metric tons in UI.
 
 ### Airport Database
-- Pre-built binary blob shipped with the app. Source: OpenFlights, filtered to airports with valid IATA codes; heliports and closed fields excluded.
-- Packed format: IATA (3B) + ICAO (4B) + lat/lon as scaled int32 + country code (2B) = 17B per record.
-- Compressed with Brotli-11 or zstd-19. Target: under 50KB over the wire.
-- Decoded once at app boot into typed arrays plus a `Map<string, number>` lookup keyed by both IATA and ICAO codes.
+- Inline-JSON-in-TypeScript shipped with the app, lazy-parsed on first lookup. ~4,500 airports (large + medium types).
+- Source: **OurAirports** (public domain, actively maintained), filtered to entries with valid 3-letter IATA codes.
+- Format: `{ "IATA": [lat, lon] }` with coordinates rounded to 4 decimals (~11m precision; far below airport-reference-point variance).
+- **IATA-keyed only.** Empirically, Flighty CSVs use IATA in `From`/`To`/`Diverted To` for 100% of rows — ICAO indexing would be unused weight. If a future user surfaces ICAO-only rows, add a translator layer at parse time, not a second key in the blob.
+- Wire size: ~110KB raw, ~50KB gzipped, ~38KB brotli. Comfortably inside the bundle budget without packing.
+- Refresh script: `scripts/generate-airport-coords.py` (downloads from OurAirports and regenerates `src/lib/airports/coords.ts`).
+- **Future optimization (not v1):** packed binary format (IATA + lat/lon scaled int32 = ~9B per record, ~30KB compressed) decoded into typed arrays at boot. Only worth doing if bundle measurements push us over budget.
 
 ### Results: Summary View (per year)
 - Headline: total tons CO₂e for selected year.
