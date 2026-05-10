@@ -75,9 +75,19 @@ No login. No email capture. No "sign up to see your full results." Ever.
 - Data quality indicator and any caveats (e.g., "aircraft type inferred").
 - "What if?" sliders: cabin class, aircraft type, direct vs. connecting. Each updates the per-flight estimate live.
 
+### Cabin Class Fallback
+- Many older Flighty rows have an empty `Cabin Class` field. Calculator must not silently default to economy.
+- After upload, surface a single toggle: "Mostly economy / Mostly business / Mixed (set per-flight)."
+- The toggle applies **only** to flights missing cabin data. Flights with a recorded cabin class are never overridden.
+- UI must show the count split, e.g. "Cabin class found for 142 flights. For the other 232, assume: [Economy ▾]."
+- Flipping the toggle updates the headline number live, so the assumption is legible rather than hidden inside the math.
+- Per-flight overrides available on the detail view (already covered by the "What if?" sliders).
+- Persist the toggle alongside the cached result (CSV-hash key); a different CSV resets it.
+- Long-haul caveat in copy: cabin class is the largest single lever on long-haul and nearly cosmetic on short hops. Surface this contextually based on the user's data.
+
 ### Sharing
-- v1: render summary card to canvas, download as PNG. No URLs, no backend, no leakage.
-- Card design should be honest and slightly austere — resist Wrapped-clone aesthetics. Discomfort is the point.
+- **Deferred from v1.** No share card, no PNG export, no canvas work. The "honest receipt" aesthetic still governs the results page itself.
+- May return in a later version. When it does, the design direction below still applies.
 
 ### Persistence
 - Cache decoded results in `localStorage` keyed by a hash of the CSV. Re-uploading the same file returns instantly.
@@ -94,11 +104,12 @@ No login. No email capture. No "sign up to see your full results." Ever.
 
 ## Tech Stack
 
-- **Framework:** Astro for static shell + Svelte islands for interactive surfaces (uploader, charts, sliders).
-- **Language:** TypeScript throughout.
+- **Framework:** Astro 6.x for static shell + Svelte islands for interactive surfaces (uploader, charts, sliders).
+- **Language:** TypeScript 6.0 throughout.
+- **Lint/format:** Biome (single tool for both).
 - **CSV parsing:** PapaParse.
 - **Validation:** Zod.
-- **Math:** numpy-ts for vectorized distance and emission calculations.
+- **Math:** numpy-ts for vectorized distance and emission calculations (tree-shakeable; only the imported ops ship).
 - **Charts:** D3 directly, or a thin wrapper. Avoid heavy chart libraries.
 - **Styling:** Tailwind.
 - **Hosting:** Vercel, Netlify, or Cloudflare Pages free tier.
@@ -122,6 +133,7 @@ The methodology is the product. The site must include:
 
 ## Out of Scope, Possibly Later
 
+- v1.1: share card (PNG export of summary, designed as a receipt rather than a trophy).
 - v1.1: Method B (aircraft-aware via TIM).
 - v2: support for other CSV formats (App in the Air, OpenFlights, manual entry).
 - v2: lifetime view across all uploaded years.
