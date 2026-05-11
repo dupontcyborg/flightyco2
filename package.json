@@ -12,12 +12,16 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "fix": "biome check --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "data": "tsx scripts/update-data.ts",
     "data:airports": "tsx scripts/update-airports.ts",
     "data:gaia": "tsx scripts/update-gaia.ts",
     "data:eea": "tsx scripts/update-eea.ts",
     "data:seats": "tsx scripts/build-seat-configs.ts",
-    "data:tim": "tsx scripts/update-tim-mapping.ts"
+    "data:tim": "tsx scripts/update-tim-mapping.ts",
+    "data:defra": "tsx scripts/update-defra.ts"
   },
   "dependencies": {
     "@astrojs/svelte": "^8.1.0",
@@ -31,10 +35,12 @@
     "@biomejs/biome": "^2.4.15",
     "@tailwindcss/vite": "^4.3.0",
     "@types/papaparse": "^5.5.2",
+    "@vitest/coverage-v8": "^4.1.5",
     "exceljs": "^4.4.0",
     "tailwindcss": "^4.3.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
+    "vitest": "^4.1.5",
     "yaml": "^2.8.4"
   }
 }

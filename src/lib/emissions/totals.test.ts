@@ -1,40 +1,35 @@
+/**
+ * Lifetime-totals regression test against the user's Flighty fixture.
+ *
+ * Locks in the canonical numbers so future changes (factor updates, mapping
+ * tweaks, calculator refactors) surface as explicit deltas to inspect.
+ *
+ * Current canonical totals (with 1.9× RF, cabin fallback = economy):
+ *   DEFRA 2024:   186.68 t CO₂e
+ *   TIM 3.0.0:    175.07 t CO₂e
+ *
+ * When intentionally changing factors, update these expected values along
+ * with the change.
+ */
+
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { aircraftToIcao, type MappingFile, setAircraftMapping } from "../aircraft/data.ts";
-import { type FuelBurnFile, setFuelBurn } from "../aircraft/fuel-burn.ts";
-import { type SeatConfigFile, setSeatConfigs } from "../aircraft/seat-config.ts";
-import { type AirportTable, setAirports } from "../airports/data.ts";
+import { beforeEach, describe, expect, it } from "vitest";
+import { aircraftToIcao } from "../aircraft/data.ts";
 import { routeDistanceKm } from "../airports/distance.ts";
 import { parseFlightyCsv } from "../csv/parse.ts";
-import { setGaiaAirports, setGaiaCountries } from "../gaia/data.ts";
+import { bootstrapTestData, repoPath } from "../test-helpers.ts";
 import { calculateDefra, calculateTim } from "./index.ts";
 import { DEFAULT_EMISSION_OPTIONS, type EmissionInput, type EmissionOptions } from "./types.ts";
 
-function loadJson<T>(rel: string): T {
-  const path = fileURLToPath(new URL(`../../../${rel}`, import.meta.url));
-  return JSON.parse(readFileSync(path, "utf8")) as T;
+const FIXTURE = repoPath("sample_data/FlightyExport-2026-05-10 (2).csv");
+
+beforeEach(() => bootstrapTestData());
+
+function loadFixture() {
+  return parseFlightyCsv(readFileSync(FIXTURE, "utf8")).flights;
 }
 
-setAirports(loadJson<AirportTable>("public/airports.json"));
-setAircraftMapping(loadJson<MappingFile>("public/aircraft-mapping.json"));
-setFuelBurn(loadJson<FuelBurnFile>("public/eea-fuel-burn.json"));
-setSeatConfigs(loadJson<SeatConfigFile>("public/seat-configs.json"));
-setGaiaAirports(loadJson<Record<string, [number, number]>>("public/gaia-airports.json"));
-setGaiaCountries(loadJson<Record<string, [number, number]>>("public/gaia-countries.json"));
-
-const fixture = fileURLToPath(
-  new URL("../../../sample_data/FlightyExport-2026-05-10 (2).csv", import.meta.url),
-);
-const { flights } = parseFlightyCsv(readFileSync(fixture, "utf8"));
-
-interface Totals {
-  kgCo2e: number;
-  kgCo2: number;
-  count: number;
-  fellBack: number;
-}
-
-function buildInput(f: (typeof flights)[number]): EmissionInput | null {
+function buildInput(f: ReturnType<typeof loadFixture>[number]): EmissionInput | null {
   const route = routeDistanceKm(f.from, f.to);
   if (!route) return null;
   return {
@@ -49,85 +44,84 @@ function buildInput(f: (typeof flights)[number]): EmissionInput | null {
   };
 }
 
-function runDefra(options: EmissionOptions): Totals {
-  const t: Totals = { kgCo2e: 0, kgCo2: 0, count: 0, fellBack: 0 };
-  for (const f of flights) {
-    if (f.cancelled) continue;
-    const input = buildInput(f);
-    if (!input) continue;
-    const r = calculateDefra(input, options);
-    t.kgCo2 += r.kgCo2;
-    t.kgCo2e += r.kgCo2e;
-    t.count++;
-  }
-  return t;
-}
-function runTim(options: EmissionOptions): Totals {
-  const t: Totals = { kgCo2e: 0, kgCo2: 0, count: 0, fellBack: 0 };
-  for (const f of flights) {
-    if (f.cancelled) continue;
-    const input = buildInput(f);
-    if (!input) continue;
-    const r = calculateTim(input, options);
-    t.kgCo2 += r.kgCo2;
-    t.kgCo2e += r.kgCo2e;
-    t.count++;
-    if (r.method === "DEFRA-2024") t.fellBack++;
-  }
-  return t;
-}
+describe("Lifetime totals (cabin fallback = economy, RF = 1.9×)", () => {
+  const opts: EmissionOptions = DEFAULT_EMISSION_OPTIONS;
+  const flights = loadFixture();
 
-const fmt = (kg: number) => `${(kg / 1000).toFixed(2)} t`;
+  it("DEFRA total locked at ~186.68 t", () => {
+    let total = 0;
+    let count = 0;
+    for (const f of flights) {
+      if (f.cancelled) continue;
+      const input = buildInput(f);
+      if (!input) continue;
+      total += calculateDefra(input, opts).kgCo2e;
+      count++;
+    }
+    expect(count).toBe(369);
+    expect(total / 1000).toBeCloseTo(186.68, 1);
+  });
 
-console.log("Lifetime totals (cabin fallback = economy):");
+  it("TIM total locked at ~175.07 t", () => {
+    let total = 0;
+    let count = 0;
+    let fellBack = 0;
+    for (const f of flights) {
+      if (f.cancelled) continue;
+      const input = buildInput(f);
+      if (!input) continue;
+      const r = calculateTim(input, opts);
+      total += r.kgCo2e;
+      count++;
+      if (r.method === "DEFRA-2024") fellBack++;
+    }
+    expect(count).toBe(369);
+    expect(fellBack).toBe(27); // exactly the rows with no aircraft string
+    expect(total / 1000).toBeCloseTo(175.07, 1);
+  });
 
-const withRf = DEFAULT_EMISSION_OPTIONS;
-const withoutRf: EmissionOptions = { ...DEFAULT_EMISSION_OPTIONS, nonCo2Multiplier: 1 };
+  it("TIM is 5-7% lower than DEFRA (TIM is more refined; DEFRA is conservative)", () => {
+    let defraTotal = 0;
+    let timTotal = 0;
+    for (const f of flights) {
+      if (f.cancelled) continue;
+      const input = buildInput(f);
+      if (!input) continue;
+      defraTotal += calculateDefra(input, opts).kgCo2e;
+      timTotal += calculateTim(input, opts).kgCo2e;
+    }
+    const ratio = timTotal / defraTotal;
+    expect(ratio).toBeGreaterThan(0.92);
+    expect(ratio).toBeLessThan(0.96);
+  });
+});
 
-const defra = runDefra(withRf);
-const defraNoRf = runDefra(withoutRf);
-const tim = runTim(withRf);
-const timNoRf = runTim(withoutRf);
+describe("Aircraft mapping coverage on fixture", () => {
+  const flights = loadFixture();
 
-console.log("\nDEFRA 2024:");
-console.log(`  with 1.9× RF:    ${fmt(defra.kgCo2e)} CO₂e`);
-console.log(`  without RF:      ${fmt(defraNoRf.kgCo2)} CO₂`);
-console.log(`  flights:         ${defra.count}`);
+  it("hits exact match on ≥85% of flights with aircraft strings", () => {
+    let exact = 0;
+    let withAircraft = 0;
+    for (const f of flights) {
+      if (f.cancelled) continue;
+      if (!f.aircraft) continue;
+      withAircraft++;
+      const l = aircraftToIcao(f.aircraft);
+      if (l?.matchType === "exact") exact++;
+    }
+    expect(exact / withAircraft).toBeGreaterThan(0.85);
+  });
 
-console.log("\nTIM 3.0.0:");
-console.log(`  with 1.9× RF:    ${fmt(tim.kgCo2e)} CO₂e`);
-console.log(`  without RF:      ${fmt(timNoRf.kgCo2)} CO₂`);
-console.log(`  flights:         ${tim.count}`);
-console.log(`  fell back to DEFRA: ${tim.fellBack}`);
-
-const delta = tim.kgCo2e - defra.kgCo2e;
-const pct = (delta / defra.kgCo2e) * 100;
-console.log(
-  `\nDivergence (TIM vs DEFRA, with RF): ${delta >= 0 ? "+" : ""}${fmt(delta)} (${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%)`,
-);
-
-console.log("\nComparisons (TIM with RF):");
-console.log(
-  `  vs avg American (16t/yr × 18yr = 288t): ${((tim.kgCo2e / 1000 / 288) * 100).toFixed(0)}%`,
-);
-console.log(
-  `  vs 1.5°C-aligned budget (2t/yr × 18yr = 36t): ${(tim.kgCo2e / 1000 / 36).toFixed(1)}× over`,
-);
-
-// Mapping coverage
-console.log("\nAircraft mapping coverage:");
-const hits = { exact: 0, substring: 0, miss: 0 };
-let total = 0;
-for (const f of flights) {
-  if (f.cancelled) continue;
-  total++;
-  if (!f.aircraft) {
-    hits.miss++;
-    continue;
-  }
-  const l = aircraftToIcao(f.aircraft);
-  hits[l?.matchType ?? "miss"]++;
-}
-console.log(
-  `  exact: ${hits.exact}  substring: ${hits.substring}  unmapped: ${hits.miss}  total: ${total}`,
-);
+  it("100% of flights with aircraft strings resolve (exact or substring)", () => {
+    let unmapped = 0;
+    let withAircraft = 0;
+    for (const f of flights) {
+      if (f.cancelled) continue;
+      if (!f.aircraft) continue;
+      withAircraft++;
+      if (aircraftToIcao(f.aircraft) === null) unmapped++;
+    }
+    expect(unmapped).toBe(0);
+    expect(withAircraft).toBeGreaterThan(330);
+  });
+});
