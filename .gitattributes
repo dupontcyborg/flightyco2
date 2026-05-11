@@ -1,0 +1,3 @@
+# Exclude scaffold/config files from GitHub's language stats
+# https://github.com/github-linguist/linguist/blob/main/docs/overrides.md
+*.mjs linguist-detectable=false

@@ -48,10 +48,21 @@ No login. No email capture. No "sign up to see your full results." Ever.
 - Tag each flight with a data quality level (`high`, `medium`, `low`) based on completeness.
 
 ### Emission Calculation
-- **DEFRA (default, ships v1):** Distance-based with DEFRA 2024 emission factors. Distance buckets (domestic / short-haul / long-haul), cabin class multipliers, 9% distance uplift for non-direct routing, 1.9× non-CO₂ multiplier applied by default with a toggle to disable.
-- **TIM (ships v1.1):** Aircraft-aware calculation using Google Travel Impact Model methodology. Falls back to DEFRA when aircraft data is missing or unrecognized.
-- Each flight's result records which method was used and what factor table version (e.g., `DEFRA-2024`) was applied. Past calculations remain stable when factors update.
-- All emissions reported in kg CO₂e. Aggregate to metric tons in UI.
+
+Two calculation methods are available, both shipping in v1. The user toggles between them in the methodology drawer; the result records which one produced each per-flight number.
+
+- **TIM (recommended default):** Faithful port of Google's Travel Impact Model 3.0.0. Reads per-aircraft EEA fuel-burn curves (LTO + CCD interpolated by distance), applies GAIA route-specific distance adjustment (airport-pair → country-pair → 1.052 global default), converts fuel to CO₂e via the CORSIA WTW factor (3.8359 kg CO₂e/kg jet fuel), apportions ~8% to belly cargo, and allocates per-passenger by seat-area (IATA RP 1726 class multipliers: narrow 1/1/1.5/1.5, wide 1/1.5/4/5). Scales by an 84.5% global load factor. Validated against TIM's published ZRH-SFO B789 worked example to 0.07%.
+  - **Per-flight transparent fallback to DEFRA** when (a) the aircraft string can't be mapped to a known ICAO, (b) the ICAO has no EEA fuel-burn entry, or (c) any required input is missing. The `EmissionResult.method` field always reflects what was actually used (`"TIM-2024"` vs `"DEFRA-2024"`), and `caveats` explains the fallback. The methodology UI surfaces this — e.g. "TIM covered 342 flights, DEFRA fallback covered 27."
+
+- **DEFRA (alternative):** UK Gov GHG Conversion Factors 2024 (v1.1), distance × per-passenger-km factor by cabin class, with the optional non-CO₂ uplift applied externally. Currently uses the "International, to/from non-UK" tier uniformly across all flights — accurate for non-UK users, off by 30–50% for UK-involved flights. Country-pair haul classification (Domestic UK / Short-haul UK / Long-haul UK / International) is captured in the data pipeline (`public/defra-factors.json` has the 215-country table) and lands as a v1.x refinement.
+
+**Non-CO₂ multiplier:** Applied externally on top of either method, toggleable in the UI. Default **1.9×** (Lee et al. 2009, common climate-reporting convention). DEFRA 2024 internally uses ~1.7× and Lee et al. 2021 puts the central estimate at ~2× with wide uncertainty; the toggle exposes the range. With multiplier = 1 the numbers are "raw CO₂e from the molecule + upstream fuel production"; with multiplier > 1 they're "total climate impact including contrails, NOₓ, water vapor at altitude."
+
+**Routing uplift:** DEFRA applies 1.09× to great-circle distance. TIM uses route-specific GAIA ratios (median ~1.05).
+
+**Factor versioning:** Each result records `method` and `factorVersion` (e.g. `"TIM-3.0.0 (EEA-MEC-2023-v1.5_18_09_2024 fuel, GAIA-2023 routing)"`). Past calculations remain stable when factors update.
+
+All emissions reported in kg CO₂e. Aggregate to metric tons in UI.
 
 ### Airport Database
 - Inline-JSON-in-TypeScript shipped with the app, lazy-parsed on first lookup. ~4,500 airports (large + medium types).
@@ -137,7 +148,7 @@ The methodology is the product. The site must include:
 ## Out of Scope, Possibly Later
 
 - v1.1: share card (PNG export of summary, designed as a receipt rather than a trophy).
-- v1.1: TIM method (aircraft-aware via Google's Travel Impact Model).
+- v1.1: DEFRA country-pair haul classification (currently we use the International non-UK tier uniformly; full classification needed for ≥30% accuracy gain on UK-involved flights).
 - v2: support for other CSV formats (App in the Air, OpenFlights, manual entry).
 - v2: lifetime view across all uploaded years.
 - v2: anonymous shareable URLs (encoded in hash, no backend).
@@ -154,6 +165,7 @@ The metric we are explicitly not optimizing for: time-on-site or return visits. 
 
 ## Open Questions
 
-- Which non-CO₂ multiplier to default to: 1.9 (UK gov), 2.0 (common simplification), or a haul-length-dependent value (more accurate, harder to explain)?
-- How to handle pre-2006 flights gracefully — Flighty itself doesn't enrich these. Show with a "low confidence" tag, or hide behind a toggle?
-- Should the share card include the methodology version, or keep it visually clean and surface methodology only on click-through?
+- **Non-CO₂ multiplier default:** 1.9× (Lee et al. 2009, common climate-reporting convention) vs 1.7× (DEFRA 2024 internal value) vs ~2× (Lee et al. 2021 central estimate). Current: 1.9, with UI toggle to switch.
+- **Default method shown first:** TIM (more refined, requires aircraft data) or DEFRA (simpler, fewer caveats)? Current PRD leans TIM-default since it's more accurate per-flight and the transparent DEFRA-fallback handles missing-aircraft rows cleanly.
+- **Pre-2006 flights:** Flighty doesn't enrich these. Show with a "low confidence" tag, or hide behind a toggle? Moot for our reference fixture (earliest 2008) but worth deciding for other users.
+- **Share card methodology version stamp:** include `methodology: TIM-3.0.0 · v1.0` footer (a receipt has a version) or keep visually clean? Moot until v1.1 share card lands.

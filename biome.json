@@ -9,6 +9,7 @@
       "!sample_data",
       "!data",
       "!public",
+      "!coverage",
       "!**/*.css",
       "!**/*.astro"
     ]

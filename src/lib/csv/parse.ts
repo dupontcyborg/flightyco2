@@ -17,13 +17,31 @@ export interface ParseResult {
 }
 
 /**
- * Codeshare key: `from|actualTo|scheduledDeparture`.
+ * Thrown when the input doesn't look like a Flighty CSV at all — wrong
+ * headers, missing required columns, or a totally different file format.
  *
- * Two airline rows that describe the same physical flight (e.g. AA's
- * JFK-LHR and BA's codeshare) share these three fields exactly. Rows with
- * no scheduled-departure timestamp are excluded from dedupe — without a
- * time anchor we can't safely distinguish two same-day same-route flights.
+ * Distinguishes "not a Flighty CSV" (this) from "valid Flighty CSV with
+ * bad rows" (returns ParseResult with non-empty `skipped`).
  */
+export class NotFlightyCsvError extends Error {
+  readonly missingColumns: string[];
+  readonly foundColumns: string[];
+  constructor(missing: string[], found: string[]) {
+    super(
+      `Doesn't look like a Flighty CSV export — missing required columns: ${missing.join(", ")}`,
+    );
+    this.name = "NotFlightyCsvError";
+    this.missingColumns = missing;
+    this.foundColumns = found;
+  }
+}
+
+/**
+ * Minimum columns we need to call a CSV "Flighty-shaped". A real Flighty
+ * export has 33 columns; these 5 are the ones we cannot work without.
+ */
+const REQUIRED_FLIGHTY_COLUMNS = ["Date", "From", "To", "Canceled", "Flight Flighty ID"];
+
 function codeshareKey(f: ParsedFlight): string | null {
   if (!f.scheduledDeparture) return null;
   return `${f.from}|${f.actualTo}|${f.scheduledDeparture}`;
@@ -40,7 +58,6 @@ function dedupeCodeshares(flights: ParsedFlight[]): {
   for (const f of flights) {
     const key = codeshareKey(f);
     if (!key) {
-      // No time anchor — pass through unconditionally
       kept.push(f);
       continue;
     }
@@ -50,18 +67,29 @@ function dedupeCodeshares(flights: ParsedFlight[]): {
       kept.push(f);
       continue;
     }
-    // Already have a flight with this key — record the dupe
     deduped.push({ kept: existing, dropped: f });
   }
 
   return { flights: kept, deduped };
 }
 
+/**
+ * Parse a Flighty CSV export. Throws `NotFlightyCsvError` if the input
+ * doesn't look like a Flighty CSV at all (missing required columns).
+ *
+ * For valid-shape CSVs with bad rows, returns a `ParseResult` with the bad
+ * rows in `skipped` — caller decides how to surface those.
+ */
 export function parseFlightyCsv(csv: string): ParseResult {
   const result = Papa.parse<Record<string, string>>(csv, {
     header: true,
     skipEmptyLines: true,
   });
+
+  // Format sanity check — distinguish "wrong file format" from "valid format, no usable rows".
+  const headers = result.meta.fields ?? [];
+  const missing = REQUIRED_FLIGHTY_COLUMNS.filter((col) => !headers.includes(col));
+  if (missing.length > 0) throw new NotFlightyCsvError(missing, headers);
 
   const raw: ParsedFlight[] = [];
   const skipped: { row: number; error: string }[] = [];

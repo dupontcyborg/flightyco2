@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { repoPath } from "../test-helpers.ts";
-import { parseFlightyCsv } from "./parse.ts";
+import { NotFlightyCsvError, parseFlightyCsv } from "./parse.ts";
 
 const FIXTURE_PATH = repoPath("sample_data/FlightyExport-2026-05-10 (2).csv");
 
@@ -205,5 +205,51 @@ describe("parseFlightyCsv — codeshare dedupe", () => {
     // investigate — it likely means a dedupe false positive.
     // (This assertion runs separately in totals.test.ts but lock it here too)
     expect(true).toBe(true); // placeholder; real assertion lives in totals.test.ts
+  });
+});
+
+describe("parseFlightyCsv — format sanity check", () => {
+  it("throws NotFlightyCsvError when required columns are missing", () => {
+    const csv = "Wrong,Header,Format\n1,2,3";
+    expect(() => parseFlightyCsv(csv)).toThrow(NotFlightyCsvError);
+  });
+
+  it("error reports which required columns were missing", () => {
+    const csv = "Wrong,Header,Format\n1,2,3";
+    try {
+      parseFlightyCsv(csv);
+      expect.fail("should have thrown");
+    } catch (e) {
+      expect(e).toBeInstanceOf(NotFlightyCsvError);
+      const err = e as NotFlightyCsvError;
+      expect(err.missingColumns).toContain("Date");
+      expect(err.missingColumns).toContain("From");
+      expect(err.missingColumns).toContain("To");
+      expect(err.foundColumns).toContain("Wrong");
+    }
+  });
+
+  it("throws on a non-CSV (single line, no commas)", () => {
+    expect(() => parseFlightyCsv("not a csv at all")).toThrow(NotFlightyCsvError);
+  });
+
+  it("throws on empty input", () => {
+    expect(() => parseFlightyCsv("")).toThrow(NotFlightyCsvError);
+  });
+
+  it("accepts a minimal-but-valid Flighty CSV (header only)", () => {
+    // All required columns present, zero data rows — this is "valid Flighty
+    // CSV with no usable rows", NOT a format error.
+    const csv =
+      "Date,Airline,Flight,From,To,Canceled,Diverted To,Gate Departure (Scheduled),Aircraft Type Name,Cabin Class,Flight Flighty ID,Aircraft Type Flighty ID,Departure Airport Flighty ID,Arrival Airport Flighty ID";
+    const result = parseFlightyCsv(csv);
+    expect(result.flights).toHaveLength(0);
+    expect(result.skipped).toHaveLength(0);
+  });
+
+  it("accepts the real fixture (has all required columns)", () => {
+    // sanity — should not throw
+    const csv = readFileSync(FIXTURE_PATH, "utf8");
+    expect(() => parseFlightyCsv(csv)).not.toThrow();
   });
 });

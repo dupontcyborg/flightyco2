@@ -1,18 +1,17 @@
 /**
- * Lifetime-totals regression test against the user's Flighty fixture.
+ * Lifetime-totals regression test against nicolas's *personal* Flighty
+ * fixture. The fixture is gitignored — this suite is skipped on a fresh
+ * clone or in CI without the file.
  *
- * Locks in the canonical numbers so future changes (factor updates, mapping
- * tweaks, calculator refactors) surface as explicit deltas to inspect.
+ * The portable end-to-end regression lives in `src/lib/integration.test.ts`
+ * using the committed canonical fixture.
  *
  * Current canonical totals (with 1.9× RF, cabin fallback = economy):
  *   DEFRA 2024:   186.68 t CO₂e
  *   TIM 3.0.0:    175.07 t CO₂e
- *
- * When intentionally changing factors, update these expected values along
- * with the change.
  */
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { beforeEach, describe, expect, it } from "vitest";
 import { aircraftToIcao } from "../aircraft/data.ts";
 import { routeDistanceKm } from "../airports/distance.ts";
@@ -22,6 +21,11 @@ import { calculateDefra, calculateTim } from "./index.ts";
 import { DEFAULT_EMISSION_OPTIONS, type EmissionInput, type EmissionOptions } from "./types.ts";
 
 const FIXTURE = repoPath("sample_data/FlightyExport-2026-05-10 (2).csv");
+const HAVE_FIXTURE = existsSync(FIXTURE);
+
+// Skip the whole file when the personal fixture isn't present (e.g. fresh
+// clone or CI). The portable regression lives in integration.test.ts.
+const describeIfFixture = HAVE_FIXTURE ? describe : describe.skip;
 
 beforeEach(() => bootstrapTestData());
 
@@ -44,7 +48,7 @@ function buildInput(f: ReturnType<typeof loadFixture>[number]): EmissionInput | 
   };
 }
 
-describe("Lifetime totals (cabin fallback = economy, RF = 1.9×)", () => {
+describeIfFixture("Lifetime totals (cabin fallback = economy, RF = 1.9×)", () => {
   const opts: EmissionOptions = DEFAULT_EMISSION_OPTIONS;
   const flights = loadFixture();
 
@@ -96,7 +100,7 @@ describe("Lifetime totals (cabin fallback = economy, RF = 1.9×)", () => {
   });
 });
 
-describe("Aircraft mapping coverage on fixture", () => {
+describeIfFixture("Aircraft mapping coverage on fixture", () => {
   const flights = loadFixture();
 
   it("hits exact match on ≥85% of flights with aircraft strings", () => {
