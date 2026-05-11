@@ -1,7 +1,6 @@
-import { getAirportCoords } from "./coords.ts";
+import { type Airport, getAirport } from "./data.ts";
 
 const EARTH_RADIUS_KM = 6371;
-
 const toRadians = (deg: number) => (deg * Math.PI) / 180;
 
 export function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -15,17 +14,17 @@ export function haversineKm(lat1: number, lon1: number, lat2: number, lon2: numb
 
 export interface RouteDistance {
   km: number;
-  from: { iata: string; lat: number; lon: number };
-  to: { iata: string; lat: number; lon: number };
+  from: Airport;
+  to: Airport;
 }
 
 export function routeDistanceKm(fromIata: string, toIata: string): RouteDistance | null {
-  const from = getAirportCoords(fromIata);
-  const to = getAirportCoords(toIata);
+  const from = getAirport(fromIata);
+  const to = getAirport(toIata);
   if (!from || !to) return null;
   return {
     km: haversineKm(from.lat, from.lon, to.lat, to.lon),
-    from: { iata: fromIata.toUpperCase(), ...from },
-    to: { iata: toIata.toUpperCase(), ...to },
+    from,
+    to,
   };
 }

@@ -1,10 +1,13 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { parseFlightyCsv } from "../csv/parse.ts";
+import { type AirportTable, setAirports } from "./data.ts";
 import { routeDistanceKm } from "./distance.ts";
 
-// Known great-circle distances (km). Tolerances are generous since
-// OurAirports rounds to 4 decimals and airport reference points vary.
+// Bootstrap: load the static JSON from disk and populate the in-memory store.
+const airportsPath = fileURLToPath(new URL("../../../public/airports.json", import.meta.url));
+setAirports(JSON.parse(readFileSync(airportsPath, "utf8")) as AirportTable);
+
 const knownRoutes: { from: string; to: string; expectedKm: number }[] = [
   { from: "JFK", to: "LAX", expectedKm: 3974 },
   { from: "JFK", to: "LHR", expectedKm: 5540 },
@@ -26,6 +29,13 @@ for (const r of knownRoutes) {
   console.log(
     `  ${ok} ${r.from}->${r.to}  ${result.km.toFixed(0)}km (expected ~${r.expectedKm}, Δ ${pct.toFixed(2)}%)`,
   );
+}
+
+// ICAO + country baked-in check
+const jfk = routeDistanceKm("JFK", "LHR");
+if (jfk) {
+  console.log(`\nJFK metadata: icao=${jfk.from.icao} country=${jfk.from.country}`);
+  console.log(`LHR metadata: icao=${jfk.to.icao} country=${jfk.to.country}`);
 }
 
 const fixture = fileURLToPath(
@@ -54,6 +64,4 @@ console.log("\nFixture coverage:");
 console.log(`  Flights resolved: ${resolved}`);
 console.log(`  Flights missing:  ${missing}`);
 console.log(`  Total km flown:   ${totalKm.toFixed(0)} (${(totalKm * 0.621371).toFixed(0)} mi)`);
-if (missing > 0) {
-  console.log(`  Unresolved codes: ${[...missingCodes].sort().join(", ")}`);
-}
+if (missing > 0) console.log(`  Unresolved codes: ${[...missingCodes].sort().join(", ")}`);
