@@ -36,11 +36,17 @@ export function loadSeatConfigs(url: string = DEFAULTS.seatConfigs): Promise<voi
 
 export function loadAircraftData(urls: AircraftLoadUrls = {}): Promise<void> {
   if (inflight) return inflight;
-  inflight = Promise.all([
-    loadAircraftMapping(urls.mapping ?? DEFAULTS.mapping),
-    loadFuelBurn(urls.fuelBurn ?? DEFAULTS.fuelBurn),
-    loadSeatConfigs(urls.seatConfigs ?? DEFAULTS.seatConfigs),
-  ]).then(() => undefined);
+  inflight = (async () => {
+    try {
+      await Promise.all([
+        loadAircraftMapping(urls.mapping ?? DEFAULTS.mapping),
+        loadFuelBurn(urls.fuelBurn ?? DEFAULTS.fuelBurn),
+        loadSeatConfigs(urls.seatConfigs ?? DEFAULTS.seatConfigs),
+      ]);
+    } finally {
+      inflight = null;
+    }
+  })();
   return inflight;
 }
 

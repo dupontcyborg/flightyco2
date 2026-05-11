@@ -1,0 +1,47 @@
+/**
+ * Single async entry-point for loading all runtime reference data.
+ *
+ * The UI calls `loadAllReferenceData()` once on uploader mount; everything
+ * else (`getAirport()`, `aircraftToIcao()`, `lookupGaia()`, etc.) becomes
+ * synchronous after this resolves.
+ *
+ * All fetches happen in parallel. The total wire transfer is ~310 KB
+ * brotli, fetched once per visit, then cached aggressively by the browser
+ * and by the in-memory store. Subsequent calls are no-op once data is
+ * loaded.
+ */
+
+import { loadAircraftData } from "./aircraft/load.ts";
+import { loadAirports } from "./airports/load.ts";
+import { loadGaia } from "./gaia/load.ts";
+
+export interface LoadAllUrls {
+  airports?: string;
+  mapping?: string;
+  fuelBurn?: string;
+  seatConfigs?: string;
+  gaiaAirports?: string;
+  gaiaCountries?: string;
+}
+
+let inflight: Promise<void> | null = null;
+
+export function loadAllReferenceData(urls: LoadAllUrls = {}): Promise<void> {
+  if (inflight) return inflight;
+  inflight = (async () => {
+    try {
+      await Promise.all([
+        loadAirports(urls.airports),
+        loadAircraftData({
+          mapping: urls.mapping,
+          fuelBurn: urls.fuelBurn,
+          seatConfigs: urls.seatConfigs,
+        }),
+        loadGaia(urls.gaiaAirports, urls.gaiaCountries),
+      ]);
+    } finally {
+      inflight = null;
+    }
+  })();
+  return inflight;
+}

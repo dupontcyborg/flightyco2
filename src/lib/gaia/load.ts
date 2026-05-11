@@ -11,18 +11,22 @@ export function loadGaia(
 ): Promise<void> {
   if (inflight) return inflight;
   inflight = (async () => {
-    const [airports, countries] = await Promise.all([
-      fetch(airportsUrl).then((r) => {
-        if (!r.ok) throw new Error(`loadGaia: ${airportsUrl} returned ${r.status}`);
-        return r.json() as Promise<Record<string, [number, number]>>;
-      }),
-      fetch(countriesUrl).then((r) => {
-        if (!r.ok) throw new Error(`loadGaia: ${countriesUrl} returned ${r.status}`);
-        return r.json() as Promise<Record<string, [number, number]>>;
-      }),
-    ]);
-    setGaiaAirports(airports);
-    setGaiaCountries(countries);
+    try {
+      const [airports, countries] = await Promise.all([
+        fetch(airportsUrl).then((r) => {
+          if (!r.ok) throw new Error(`loadGaia: ${airportsUrl} returned ${r.status}`);
+          return r.json() as Promise<Record<string, [number, number]>>;
+        }),
+        fetch(countriesUrl).then((r) => {
+          if (!r.ok) throw new Error(`loadGaia: ${countriesUrl} returned ${r.status}`);
+          return r.json() as Promise<Record<string, [number, number]>>;
+        }),
+      ]);
+      setGaiaAirports(airports);
+      setGaiaCountries(countries);
+    } finally {
+      inflight = null;
+    }
   })();
   return inflight;
 }

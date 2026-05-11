@@ -13,7 +13,11 @@ const cabinClassMap: Record<string, CabinClass> = {
 
 export function normalizeCabinClass(raw: string | null): CabinClass | null {
   if (!raw) return null;
-  const key = raw.toLowerCase().trim().replace(/[_-]+/g, " ");
+  // Lowercase, trim, collapse any run of underscore/dash/whitespace into a single space.
+  const key = raw
+    .toLowerCase()
+    .trim()
+    .replace(/[\s_-]+/g, " ");
   return cabinClassMap[key] ?? null;
 }
 
@@ -49,8 +53,15 @@ export interface ParsedFlight {
   id: string;
   date: string;
   from: string;
+  /** Scheduled destination. */
   to: string;
   divertedTo: string | null;
+  /**
+   * The airport the flight actually arrived at — `divertedTo ?? to`.
+   * Distance and emissions calculations should use this; `to` is preserved
+   * for reporting the originally scheduled destination.
+   */
+  actualTo: string;
   cancelled: boolean;
   airline: string | null;
   flightNumber: string | null;
@@ -70,12 +81,14 @@ export function classifyQuality(row: FlightyRow): DataQuality {
 }
 
 export function toParsedFlight(row: FlightyRow): ParsedFlight {
+  const divertedTo = row["Diverted To"];
   return {
     id: row["Flight Flighty ID"],
     date: row.Date,
     from: row.From,
     to: row.To,
-    divertedTo: row["Diverted To"],
+    divertedTo,
+    actualTo: divertedTo ?? row.To,
     cancelled: row.Canceled,
     airline: row.Airline,
     flightNumber: row.Flight,
