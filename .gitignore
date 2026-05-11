@@ -8,3 +8,4 @@ dist
 *.log
 sample_data/FlightyExport*.csv
 data/eea/*.xlsx
+data/wikipedia/

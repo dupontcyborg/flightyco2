@@ -15,7 +15,8 @@
     "data": "tsx scripts/update-data.ts",
     "data:airports": "tsx scripts/update-airports.ts",
     "data:gaia": "tsx scripts/update-gaia.ts",
-    "data:eea": "tsx scripts/update-eea.ts"
+    "data:eea": "tsx scripts/update-eea.ts",
+    "data:wikipedia": "tsx scripts/fetch-wikipedia.ts"
   },
   "dependencies": {
     "@astrojs/svelte": "^8.1.0",

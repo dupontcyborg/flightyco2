@@ -8,16 +8,21 @@
  *
  * Source: https://ourairports.com/data/ (public domain)
  *
- * Run: npm run data:airports
+ * Default: re-parse from cached CSV in data/ourairports/. Pass --force to
+ * re-download the CSV.
+ *
+ * Run: npm run data:airports [-- --force]
  */
 
-import { writeFileSync } from "node:fs";
+import { readFileSync, statSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import Papa from "papaparse";
+import { downloadIfMissing, logFetch, parseFlags } from "./lib/cli.ts";
 
 const OURAIRPORTS_URL = "https://davidmegginson.github.io/ourairports-data/airports.csv";
 const REPO = resolve(fileURLToPath(import.meta.url), "../..");
+const CACHE = resolve(REPO, "data/ourairports/airports.csv");
 const OUTPUT = resolve(REPO, "public/airports.json");
 
 const KEEP_TYPES = new Set(["large_airport", "medium_airport"]);
@@ -42,11 +47,11 @@ function extractIcao(row: OurAirportsRow): string {
 }
 
 async function main(): Promise<void> {
-  console.log(`Downloading ${OURAIRPORTS_URL}`);
-  const res = await fetch(OURAIRPORTS_URL);
-  if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
-  const csv = await res.text();
+  const flags = parseFlags();
+  const outcome = await downloadIfMissing(OURAIRPORTS_URL, CACHE, flags);
+  logFetch("OurAirports airports.csv", outcome, statSync(CACHE).size);
 
+  const csv = readFileSync(CACHE, "utf8");
   const parsed = Papa.parse<OurAirportsRow>(csv, { header: true, skipEmptyLines: true });
   console.log(`  ${parsed.data.length.toLocaleString()} rows`);
 

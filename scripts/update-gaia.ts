@@ -1,21 +1,24 @@
 /**
  * Refresh data/gaia/*.csv from Zenodo and rebuild public/gaia-*.json.
  *
+ * Default: re-parse from cached CSVs. Pass --force to re-download from Zenodo.
+ *
  * Source: Teoh et al. (2023) — https://zenodo.org/records/8369564 (CC-BY 4.0)
  *
- * Run: npm run data:gaia
+ * Run: npm run data:gaia [-- --force]
  */
 
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, statSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import Papa from "papaparse";
+import { downloadIfMissing, logFetch, parseFlags } from "./lib/cli.ts";
 
 const REPO = resolve(fileURLToPath(import.meta.url), "../..");
 const GAIA_DIR = resolve(REPO, "data/gaia");
 const PUBLIC_DIR = resolve(REPO, "public");
 
-const SOURCES: { url: string; csv: string; json: string; keyCol: string }[] = [
+const SOURCES = [
   {
     url: "https://zenodo.org/records/8369564/files/origin_destination_airport_gaia_vs_eea.csv",
     csv: "airport-pairs.csv",
@@ -29,16 +32,6 @@ const SOURCES: { url: string; csv: string; json: string; keyCol: string }[] = [
     keyCol: "origin_destination_country",
   },
 ];
-
-async function downloadAll(): Promise<void> {
-  mkdirSync(GAIA_DIR, { recursive: true });
-  for (const src of SOURCES) {
-    console.log(`Downloading ${src.csv}`);
-    const res = await fetch(src.url);
-    if (!res.ok) throw new Error(`${src.url} returned ${res.status}`);
-    writeFileSync(resolve(GAIA_DIR, src.csv), await res.text());
-  }
-}
 
 interface GaiaRow {
   ratio_distance_inefficiency: string;
@@ -66,7 +59,13 @@ function convert(csvPath: string, jsonPath: string, keyCol: string): void {
 }
 
 async function main(): Promise<void> {
-  await downloadAll();
+  const flags = parseFlags();
+  for (const src of SOURCES) {
+    const csvPath = resolve(GAIA_DIR, src.csv);
+    const outcome = await downloadIfMissing(src.url, csvPath, flags);
+    logFetch(src.csv, outcome, statSync(csvPath).size);
+  }
+
   console.log("\nBuilding GAIA JSON tables");
   for (const src of SOURCES) {
     convert(resolve(GAIA_DIR, src.csv), resolve(PUBLIC_DIR, src.json), src.keyCol);

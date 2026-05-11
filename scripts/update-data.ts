@@ -10,13 +10,14 @@ import { fileURLToPath } from "node:url";
 
 const HERE = resolve(fileURLToPath(import.meta.url), "..");
 
-const SCRIPTS = ["update-airports.ts", "update-gaia.ts", "update-eea.ts"];
+const SCRIPTS = ["update-airports.ts", "update-gaia.ts", "update-eea.ts", "fetch-wikipedia.ts"];
+const extraArgs = process.argv.slice(2);
 
 for (const script of SCRIPTS) {
   console.log(`\n=========================================================`);
-  console.log(`==> ${script}`);
+  console.log(`==> ${script}${extraArgs.length ? ` ${extraArgs.join(" ")}` : ""}`);
   console.log(`=========================================================`);
-  const result = spawnSync("npx", ["tsx", resolve(HERE, script)], {
+  const result = spawnSync("npx", ["tsx", resolve(HERE, script), ...extraArgs], {
     stdio: "inherit",
     shell: false,
   });
