@@ -16,7 +16,8 @@
     "data:airports": "tsx scripts/update-airports.ts",
     "data:gaia": "tsx scripts/update-gaia.ts",
     "data:eea": "tsx scripts/update-eea.ts",
-    "data:seats": "tsx scripts/build-seat-configs.ts"
+    "data:seats": "tsx scripts/build-seat-configs.ts",
+    "data:tim": "tsx scripts/update-tim-mapping.ts"
   },
   "dependencies": {
     "@astrojs/svelte": "^8.1.0",

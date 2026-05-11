@@ -1,0 +1,20 @@
+# Hand-curated aliases from Flighty's aircraft strings to TIM Appendix A
+# canonical names. Only used when exact + substring lookup both miss.
+#
+# Each entry: `flighty_string: tim_canonical_name`
+# Add new entries as they surface in real CSV exports.
+#
+# Why each entry exists:
+#   Bombardier CRJ* — Flighty uses the current manufacturer name, but TIM
+#       Appendix A still uses the historical "Canadair Regional Jet" branding.
+#   McDonnell Douglas MD-88 — MD-88 isn't in TIM Appendix A; the closest EEA
+#       equivalent is MD-82 (same airframe, different engine/avionics suite).
+
+"Bombardier CRJ900": "Canadair Regional Jet 900"
+"Bombardier CRJ700": "Canadair Regional Jet 700"
+"Bombardier CRJ200": "Canadair Regional Jet 200"
+"Bombardier CRJ100": "Canadair Regional Jet 100"
+"Bombardier CRJ1000": "Canadair Regional Jet 1000"
+"McDonnell Douglas MD-88": "Boeing (Douglas) MD-82"
+"McDonnell Douglas MD-81": "Boeing (Douglas) MD-82"
+"McDonnell Douglas MD-87": "Boeing (Douglas) MD-82"
