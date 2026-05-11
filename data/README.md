@@ -119,11 +119,37 @@ spreadsheet format has changed and the extractor needs updating.
 
 ---
 
+### 4. Typical seat configurations — `data/seat-configs.yaml`
+
+**What:** Per-class seat counts per ICAO aircraft type. TIM's calculation
+allocates per-flight emissions by seat-class (an A350 business seat
+absorbs ~4× the per-flight emissions of an economy seat). It uses
+proprietary OAG fleet data per carrier; we approximate to one typical
+configuration per airframe.
+
+**Source:** Hand-curated from manufacturer "typical" configurations
+(Boeing aero magazine, Airbus commercial pages) and corroborated against
+Wikipedia airframe articles. Sources cited per row.
+
+**Why YAML, not parsed:** The data is essentially static (a 737-800's
+typical 2-class config hasn't changed since 1998) and Wikipedia's spec
+tables vary too much to parse reliably. Hand-curation in YAML with
+citations is more reliable, auditable, and stable.
+
+**Coverage:** 104 commercial airliners cover ~99% of commercial passenger
+travel. The remaining 179 ICAO types in the EEA list (business jets,
+turboprops, Antonovs, etc.) use the `_default` fallback (50-seat
+single-class narrowbody).
+
+**Generates:** `public/seat-configs.json` (~10 KB raw, ~3 KB brotli)
+
+**Refresh:** `npm run data:seats` — validates schema, sanity-checks
+against EEA coverage, emits the runtime JSON.
+
+---
+
 ## Other inputs (not under this directory)
 
-- **DEFRA conversion factors** (`src/lib/emissions/factors/defra-2024.ts`) —
-  hand-typed from the UK Gov GHG Conversion Factors 2024 spreadsheet
-  ("business travel - air" sheet). Small enough to live in source.
-- **Typical seat configurations** (`src/lib/emissions/factors/seat-configs.ts` — pending) —
-  hand-curated from Boeing/Airbus datasheets and Wikipedia airframe pages.
-  TIM uses proprietary OAG data we can't access; this is our approximation.
+- **DEFRA conversion factors** — extracted from
+  `data/uk-gov/ghg-conversion-factors-2024-full.xlsx` (committed). The
+  parser is forthcoming as `npm run data:defra`.

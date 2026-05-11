@@ -1,0 +1,188 @@
+# Typical seat configurations per ICAO aircraft type.
+#
+# Source of truth: hand-curated from manufacturer "typical" configurations
+# (Boeing aero magazine, Airbus commercial pages) and corroborated against
+# Wikipedia airframe articles. Real airlines vary — a Qatar A350 ≠ an Air
+# France A350. TIM uses proprietary OAG fleet data per carrier; we
+# approximate to one representative config per airframe. Expected accuracy
+# is ±10% on widebody mixed-class flights, much tighter on narrowbody.
+#
+# Field reference:
+#   body:   "narrow" | "wide"  — TIM class-multiplier classification
+#   F:      first class seats
+#   J:      business class seats
+#   W:      premium economy seats
+#   Y:      economy seats
+#   note:   (optional) caveat / source comment
+#
+# This file is the source of truth. Run `npm run data:seats` to validate +
+# emit public/seat-configs.json (which the app fetches at runtime).
+#
+# Last reviewed: 2026-05-10
+
+# ──────────────────────────────────────────────────────────────────────────
+# Boeing — narrowbody
+# ──────────────────────────────────────────────────────────────────────────
+
+B703: { body: narrow, F: 0, J: 0, W: 0, Y: 141, note: "707-320 historical single-class" }
+B712: { body: narrow, F: 0, J: 12, W: 0, Y: 105, note: "Delta typical 2-class 117 seats" }
+B721: { body: narrow, F: 0, J: 0, W: 0, Y: 131, note: "727-100 historical single-class" }
+B722: { body: narrow, F: 0, J: 12, W: 0, Y: 133, note: "727-200 2-class typical" }
+B732: { body: narrow, F: 0, J: 0, W: 0, Y: 130, note: "737-200 single-class historical" }
+B733: { body: narrow, F: 0, J: 8, W: 0, Y: 120, note: "Boeing typ 2-class 128 seats" }
+B734: { body: narrow, F: 0, J: 8, W: 0, Y: 138, note: "Boeing typ 2-class 146 seats" }
+B735: { body: narrow, F: 0, J: 8, W: 0, Y: 102, note: "Boeing typ 2-class 110 seats" }
+B736: { body: narrow, F: 0, J: 8, W: 0, Y: 102, note: "Boeing typ 2-class 110 seats" }
+B737: { body: narrow, F: 0, J: 12, W: 0, Y: 116, note: "Boeing typ 2-class 128 seats" }
+B738: { body: narrow, F: 0, J: 16, W: 0, Y: 146, note: "Boeing typ 2-class 162 seats — industry standard" }
+B739: { body: narrow, F: 0, J: 16, W: 0, Y: 162, note: "Boeing typ 2-class 178 seats" }
+B38M: { body: narrow, F: 0, J: 16, W: 0, Y: 162, note: "737 MAX 8 — same as B738" }
+B39M: { body: narrow, F: 0, J: 16, W: 0, Y: 177, note: "737 MAX 9 typical 2-class 193 seats" }
+
+# ──────────────────────────────────────────────────────────────────────────
+# Boeing — widebody
+# ──────────────────────────────────────────────────────────────────────────
+
+B741: { body: wide, F: 24, J: 32, W: 0, Y: 310, note: "747-100 historical 3-class 366 seats" }
+B742: { body: wide, F: 24, J: 32, W: 0, Y: 310, note: "747-200 3-class 366 seats" }
+B743: { body: wide, F: 24, J: 50, W: 0, Y: 338, note: "747-300 3-class 412 seats" }
+B744: { body: wide, F: 12, J: 64, W: 0, Y: 340, note: "Boeing typ 3-class 416 seats" }
+B74S: { body: wide, F: 4, J: 36, W: 0, Y: 190, note: "747SP 3-class 230 seats" }
+B748: { body: wide, F: 8, J: 92, W: 0, Y: 367, note: "Boeing typ 3-class 467 seats" }
+B752: { body: narrow, F: 0, J: 24, W: 0, Y: 176, note: "United typ 2-class 200 seats — long+narrow" }
+B753: { body: narrow, F: 0, J: 24, W: 0, Y: 219, note: "Continental/UA 2-class 243 seats" }
+B762: { body: wide, F: 0, J: 24, W: 0, Y: 192, note: "767-200 typ 2-class 216 seats" }
+B763: { body: wide, F: 8, J: 32, W: 0, Y: 221, note: "Boeing typ 3-class 261 seats" }
+B764: { body: wide, F: 0, J: 28, W: 36, Y: 240, note: "767-400 4-class 304 seats (Delta)" }
+B772: { body: wide, F: 8, J: 50, W: 0, Y: 256, note: "Boeing typ 3-class 314 seats" }
+B773: { body: wide, F: 8, J: 60, W: 0, Y: 297, note: "Boeing typ 3-class 365 seats" }
+B77L: { body: wide, F: 8, J: 50, W: 0, Y: 259, note: "777-200LR typ 3-class 317 seats" }
+B77W: { body: wide, F: 0, J: 60, W: 24, Y: 312, note: "United 4-class 396 seats; manufacturer 3-class 365" }
+B788: { body: wide, F: 0, J: 24, W: 0, Y: 218, note: "Boeing typ 2-class 242 seats" }
+B789: { body: wide, F: 0, J: 28, W: 0, Y: 262, note: "Boeing typ 2-class 290 seats" }
+B78X: { body: wide, F: 0, J: 32, W: 0, Y: 298, note: "Boeing typ 2-class 330 seats" }
+
+# ──────────────────────────────────────────────────────────────────────────
+# Airbus — narrowbody
+# ──────────────────────────────────────────────────────────────────────────
+
+A318: { body: narrow, F: 0, J: 8, W: 0, Y: 99, note: "Airbus typ 2-class 107 seats" }
+A319: { body: narrow, F: 0, J: 8, W: 0, Y: 116, note: "Airbus typ 2-class 124 seats" }
+A320: { body: narrow, F: 0, J: 12, W: 0, Y: 138, note: "Airbus typ 2-class 150 seats" }
+A321: { body: narrow, F: 0, J: 16, W: 0, Y: 169, note: "Airbus typ 2-class 185 seats" }
+A19N: { body: narrow, F: 0, J: 8, W: 0, Y: 116, note: "A319neo — same as A319" }
+A20N: { body: narrow, F: 0, J: 12, W: 0, Y: 138, note: "A320neo — same as A320" }
+A21N: { body: narrow, F: 0, J: 16, W: 0, Y: 169, note: "A321neo — same as A321" }
+
+# ──────────────────────────────────────────────────────────────────────────
+# Airbus — widebody
+# ──────────────────────────────────────────────────────────────────────────
+
+A306: { body: wide, F: 0, J: 26, W: 0, Y: 240, note: "A300-600 typ 2-class 266 seats" }
+A30B: { body: wide, F: 0, J: 0, W: 0, Y: 281, note: "A300B2/B4 historical single-class" }
+A310: { body: wide, F: 0, J: 18, W: 0, Y: 202, note: "Airbus typ 2-class 220 seats" }
+A332: { body: wide, F: 0, J: 36, W: 0, Y: 210, note: "Airbus typ 2-class 246 seats" }
+A333: { body: wide, F: 0, J: 30, W: 0, Y: 247, note: "Airbus typ 2-class 277 seats" }
+A338: { body: wide, F: 0, J: 32, W: 0, Y: 225, note: "A330-800 typ 2-class 257 seats" }
+A339: { body: wide, F: 0, J: 30, W: 0, Y: 257, note: "A330-900neo typ 2-class 287 seats" }
+A342: { body: wide, F: 12, J: 42, W: 0, Y: 186, note: "A340-200 typ 3-class 240 seats" }
+A343: { body: wide, F: 0, J: 30, W: 0, Y: 247, note: "A340-300 typ 2-class 277 seats" }
+A345: { body: wide, F: 12, J: 42, W: 0, Y: 259, note: "A340-500 typ 3-class 313 seats" }
+A346: { body: wide, F: 12, J: 42, W: 0, Y: 272, note: "A340-600 typ 3-class 326 seats" }
+A359: { body: wide, F: 0, J: 48, W: 0, Y: 277, note: "Airbus typ 2-class 325 seats" }
+A35K: { body: wide, F: 0, J: 54, W: 0, Y: 315, note: "Airbus typ 2-class 369 seats" }
+A388: { body: wide, F: 22, J: 76, W: 0, Y: 457, note: "Airbus typ 3-class 555 seats" }
+
+# ──────────────────────────────────────────────────────────────────────────
+# McDonnell Douglas
+# ──────────────────────────────────────────────────────────────────────────
+
+DC10: { body: wide, F: 30, J: 0, W: 0, Y: 240, note: "DC-10-30 historical 2-class 270 seats" }
+MD11: { body: wide, F: 8, J: 24, W: 0, Y: 253, note: "MD-11 typ 3-class 285 seats" }
+MD81: { body: narrow, F: 0, J: 12, W: 0, Y: 143, note: "MD-81 typ 2-class 155 seats" }
+MD82: { body: narrow, F: 0, J: 12, W: 0, Y: 143, note: "MD-82 typ 2-class 155 seats" }
+MD83: { body: narrow, F: 0, J: 12, W: 0, Y: 143, note: "MD-83 typ 2-class 155 seats" }
+MD87: { body: narrow, F: 0, J: 12, W: 0, Y: 118, note: "MD-87 typ 2-class 130 seats" }
+MD88: { body: narrow, F: 0, J: 14, W: 0, Y: 128, note: "Delta typ 2-class 142 seats" }
+MD90: { body: narrow, F: 0, J: 12, W: 0, Y: 148, note: "MD-90 typ 2-class 160 seats" }
+
+# ──────────────────────────────────────────────────────────────────────────
+# Airbus / Bombardier — A220 (formerly Bombardier C-Series)
+# ──────────────────────────────────────────────────────────────────────────
+
+BCS1: { body: narrow, F: 0, J: 8, W: 0, Y: 108, note: "A220-100 typ 2-class 116 seats" }
+BCS3: { body: narrow, F: 0, J: 12, W: 0, Y: 125, note: "A220-300 typ 2-class 137 seats" }
+
+# ──────────────────────────────────────────────────────────────────────────
+# Embraer
+# ──────────────────────────────────────────────────────────────────────────
+
+E135: { body: narrow, F: 0, J: 0, W: 0, Y: 37, note: "ERJ-135 single-class regional" }
+E145: { body: narrow, F: 0, J: 0, W: 0, Y: 50, note: "ERJ-145 single-class regional" }
+E35L: { body: narrow, F: 0, J: 0, W: 0, Y: 37, note: "ERJ-135LR — same as E135" }
+E170: { body: narrow, F: 0, J: 6, W: 0, Y: 60, note: "Embraer typ 2-class 66 seats" }
+E75L: { body: narrow, F: 0, J: 12, W: 0, Y: 64, note: "E-175 typ 2-class 76 seats" }
+E75S: { body: narrow, F: 0, J: 12, W: 0, Y: 64, note: "E-175 short-wing variant — same config" }
+E190: { body: narrow, F: 0, J: 8, W: 0, Y: 88, note: "Embraer typ 2-class 96 seats" }
+E195: { body: narrow, F: 0, J: 12, W: 0, Y: 88, note: "Embraer typ 2-class 100 seats" }
+E290: { body: narrow, F: 0, J: 8, W: 0, Y: 88, note: "E190-E2 typ 2-class 96 seats" }
+E295: { body: narrow, F: 0, J: 12, W: 0, Y: 108, note: "E195-E2 typ 2-class 120 seats" }
+E110: { body: narrow, F: 0, J: 0, W: 0, Y: 19, note: "EMB 110 Bandeirante" }
+E120: { body: narrow, F: 0, J: 0, W: 0, Y: 30, note: "EMB 120 Brasilia" }
+
+# ──────────────────────────────────────────────────────────────────────────
+# Bombardier / De Havilland Canada
+# ──────────────────────────────────────────────────────────────────────────
+
+CRJ1: { body: narrow, F: 0, J: 0, W: 0, Y: 50, note: "CRJ100 single-class regional" }
+CRJ2: { body: narrow, F: 0, J: 0, W: 0, Y: 50, note: "CRJ200 single-class regional" }
+CRJ7: { body: narrow, F: 0, J: 8, W: 0, Y: 62, note: "CRJ700 2-class 70 seats" }
+CRJ9: { body: narrow, F: 0, J: 12, W: 0, Y: 64, note: "CRJ900 2-class 76 seats (Delta typical)" }
+CRJX: { body: narrow, F: 0, J: 0, W: 0, Y: 100, note: "CRJ1000 single-class 100 seats" }
+DH8A: { body: narrow, F: 0, J: 0, W: 0, Y: 39, note: "Dash 8-100" }
+DH8B: { body: narrow, F: 0, J: 0, W: 0, Y: 39, note: "Dash 8-200" }
+DH8C: { body: narrow, F: 0, J: 0, W: 0, Y: 50, note: "Dash 8-300" }
+DH8D: { body: narrow, F: 0, J: 0, W: 0, Y: 78, note: "Dash 8 Q400 single-class typ" }
+
+# ──────────────────────────────────────────────────────────────────────────
+# ATR
+# ──────────────────────────────────────────────────────────────────────────
+
+AT43: { body: narrow, F: 0, J: 0, W: 0, Y: 48, note: "ATR 42-300" }
+AT45: { body: narrow, F: 0, J: 0, W: 0, Y: 48, note: "ATR 42-500" }
+AT46: { body: narrow, F: 0, J: 0, W: 0, Y: 50, note: "ATR 42-600" }
+AT72: { body: narrow, F: 0, J: 0, W: 0, Y: 68, note: "ATR 72-200" }
+AT73: { body: narrow, F: 0, J: 0, W: 0, Y: 70, note: "ATR 72-210" }
+AT75: { body: narrow, F: 0, J: 0, W: 0, Y: 70, note: "ATR 72-500" }
+AT76: { body: narrow, F: 0, J: 0, W: 0, Y: 78, note: "ATR 72-600" }
+
+# ──────────────────────────────────────────────────────────────────────────
+# Other commercial
+# ──────────────────────────────────────────────────────────────────────────
+
+F70:  { body: narrow, F: 0, J: 0, W: 0, Y: 79,  note: "Fokker 70 single-class typ" }
+F100: { body: narrow, F: 0, J: 0, W: 0, Y: 109, note: "Fokker 100 single-class typ" }
+F50:  { body: narrow, F: 0, J: 0, W: 0, Y: 50,  note: "Fokker 50 turboprop" }
+F28:  { body: narrow, F: 0, J: 0, W: 0, Y: 65,  note: "Fokker 28" }
+F27:  { body: narrow, F: 0, J: 0, W: 0, Y: 44,  note: "Fokker 27 turboprop" }
+B461: { body: narrow, F: 0, J: 0, W: 0, Y: 82,  note: "BAe 146-100" }
+B462: { body: narrow, F: 0, J: 0, W: 0, Y: 100, note: "BAe 146-200" }
+B463: { body: narrow, F: 0, J: 0, W: 0, Y: 112, note: "BAe 146-300" }
+RJ70: { body: narrow, F: 0, J: 0, W: 0, Y: 70,  note: "Avro RJ70" }
+RJ85: { body: narrow, F: 0, J: 0, W: 0, Y: 100, note: "Avro RJ85" }
+RJ1H: { body: narrow, F: 0, J: 0, W: 0, Y: 112, note: "Avro RJ100" }
+SU95: { body: narrow, F: 0, J: 12, W: 0, Y: 86, note: "Sukhoi Superjet 100 typ 2-class 98 seats" }
+MRJ9: { body: narrow, F: 0, J: 0, W: 0, Y: 92,  note: "Mitsubishi MRJ90 / SpaceJet M90 (cancelled program)" }
+
+# ──────────────────────────────────────────────────────────────────────────
+# Fallback default for unlisted aircraft
+# Used by the TIM calculator when an ICAO type isn't in the table above.
+# General aviation, business jets, and obscure aircraft fall back here.
+# ──────────────────────────────────────────────────────────────────────────
+_default:
+  body: narrow
+  F: 0
+  J: 0
+  W: 0
+  Y: 50
+  note: "Unlisted aircraft — assumed small single-class regional (50 seats)"

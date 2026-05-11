@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 
 const HERE = resolve(fileURLToPath(import.meta.url), "..");
 
-const SCRIPTS = ["update-airports.ts", "update-gaia.ts", "update-eea.ts", "fetch-wikipedia.ts"];
+const SCRIPTS = ["update-airports.ts", "update-gaia.ts", "update-eea.ts", "build-seat-configs.ts"];
 const extraArgs = process.argv.slice(2);
 
 for (const script of SCRIPTS) {
