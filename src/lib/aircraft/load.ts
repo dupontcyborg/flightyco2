@@ -1,3 +1,4 @@
+import { ASSETS } from "../asset-manifest.ts";
 import { type MappingFile, setAircraftMapping } from "./data.ts";
 import { type FuelBurnFile, setFuelBurn } from "./fuel-burn.ts";
 import { type SeatConfigFile, setSeatConfigs } from "./seat-config.ts";
@@ -9,9 +10,9 @@ interface AircraftLoadUrls {
 }
 
 const DEFAULTS = {
-  mapping: "/aircraft-mapping.json",
-  fuelBurn: "/eea-fuel-burn.json",
-  seatConfigs: "/seat-configs.json",
+  mapping: ASSETS.aircraftMapping,
+  fuelBurn: ASSETS.fuelBurn,
+  seatConfigs: ASSETS.seatConfigs,
 };
 
 let inflight: Promise<void> | null = null;

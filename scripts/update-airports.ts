@@ -1,5 +1,5 @@
 /**
- * Refresh public/airports.json from OurAirports.
+ * Refresh data/json/airports.json from OurAirports.
  *
  * Output schema: { IATA: [lat, lon, ICAO, ISO_country] }
  *   - lat, lon: rounded to 4 decimals (~11m precision)
@@ -23,7 +23,7 @@ import { downloadIfMissing, logFetch, parseFlags } from "./lib/cli.ts";
 const OURAIRPORTS_URL = "https://davidmegginson.github.io/ourairports-data/airports.csv";
 const REPO = resolve(fileURLToPath(import.meta.url), "../..");
 const CACHE = resolve(REPO, "data/ourairports/airports.csv");
-const OUTPUT = resolve(REPO, "public/airports.json");
+const OUTPUT = resolve(REPO, "data/json/airports.json");
 
 const KEEP_TYPES = new Set(["large_airport", "medium_airport"]);
 const ICAO_RE = /^[A-Z]{4}$/;

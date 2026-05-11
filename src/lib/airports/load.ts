@@ -1,6 +1,7 @@
+import { ASSETS } from "../asset-manifest.ts";
 import { type AirportTable, setAirports } from "./data.ts";
 
-const DEFAULT_URL = "/airports.json";
+const DEFAULT_URL = ASSETS.airports;
 
 let inflight: Promise<void> | null = null;
 

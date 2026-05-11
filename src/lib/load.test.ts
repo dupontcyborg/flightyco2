@@ -13,7 +13,11 @@ function mockAll(): void {
     "fetch",
     vi.fn((url: string) => {
       const json = (data: unknown) => Promise.resolve({ ok: true, json: async () => data });
-      if (url.includes("airports.json")) return json({ JFK: [40.6398, -73.7789, "KJFK", "US"] });
+      // Match by basename, allowing for content-hashed URLs like
+      // /airports.abcd1234.json. Check more-specific names first.
+      if (url.includes("gaia-airports")) return json({});
+      if (url.includes("gaia-countries")) return json({});
+      if (url.includes("/airports.")) return json({ JFK: [40.6398, -73.7789, "KJFK", "US"] });
       if (url.includes("aircraft-mapping"))
         return json({
           version: "test",
@@ -27,8 +31,6 @@ function mockAll(): void {
           default: { body: "narrow", F: 0, J: 0, W: 0, Y: 1, total: 1 },
           configs: {},
         });
-      if (url.includes("gaia-airports")) return json({});
-      if (url.includes("gaia-countries")) return json({});
       throw new Error(`unexpected URL: ${url}`);
     }),
   );

@@ -1,7 +1,8 @@
+import { ASSETS } from "../asset-manifest.ts";
 import { setGaiaAirports, setGaiaCountries } from "./data.ts";
 
-const DEFAULT_AIRPORTS_URL = "/gaia-airports.json";
-const DEFAULT_COUNTRIES_URL = "/gaia-countries.json";
+const DEFAULT_AIRPORTS_URL = ASSETS.gaiaAirports;
+const DEFAULT_COUNTRIES_URL = ASSETS.gaiaCountries;
 
 let inflight: Promise<void> | null = null;
 

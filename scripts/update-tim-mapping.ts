@@ -32,7 +32,7 @@ const TIM_README_URL =
   "https://raw.githubusercontent.com/google/travel-impact-model/main/README.md";
 const CACHE = resolve(REPO, "data/tim/README.md");
 const ALIASES = resolve(REPO, "data/aircraft-aliases.yaml");
-const OUT = resolve(REPO, "public/aircraft-mapping.json");
+const OUT = resolve(REPO, "data/json/aircraft-mapping.json");
 
 type SupportLevel =
   | "direct"
@@ -187,7 +187,7 @@ async function main(): Promise<void> {
 
   // EEA coverage sanity
   try {
-    const eea = JSON.parse(readFileSync(resolve(REPO, "public/eea-fuel-burn.json"), "utf8")) as {
+    const eea = JSON.parse(readFileSync(resolve(REPO, "data/json/eea-fuel-burn.json"), "utf8")) as {
       aircraft: Record<string, unknown>;
     };
     const eeaIcaos = new Set(Object.keys(eea.aircraft));

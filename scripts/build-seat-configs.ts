@@ -1,5 +1,5 @@
 /**
- * Validate data/seat-configs.yaml and emit public/seat-configs.json.
+ * Validate data/seat-configs.yaml and emit data/json/seat-configs.json.
  *
  * The YAML is the source of truth — hand-curated, committed, comments-rich.
  * This script's only jobs:
@@ -19,8 +19,8 @@ import { z } from "zod";
 
 const REPO = resolve(fileURLToPath(import.meta.url), "../..");
 const SRC = resolve(REPO, "data/seat-configs.yaml");
-const OUT = resolve(REPO, "public/seat-configs.json");
-const EEA_JSON = resolve(REPO, "public/eea-fuel-burn.json");
+const OUT = resolve(REPO, "data/json/seat-configs.json");
+const EEA_JSON = resolve(REPO, "data/json/eea-fuel-burn.json");
 
 const SeatConfigSchema = z
   .object({

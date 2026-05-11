@@ -10,3 +10,8 @@ coverage
 sample_data/FlightyExport*.csv
 data/eea/*.xlsx
 data/wikipedia/
+
+# Content-hashed reference data — regenerated from data/json/*.json by
+# `tsx scripts/hash-public-assets.ts` (predev/prebuild). The unhashed
+# source files in data/json/ and src/lib/asset-manifest.ts are committed.
+public/*.[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].json

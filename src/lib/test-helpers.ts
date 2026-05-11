@@ -25,12 +25,12 @@ let bootstrapped = false;
 /** Bootstrap all reference-data stores from public/*.json. Idempotent. */
 export function bootstrapTestData(): void {
   if (bootstrapped) return;
-  setAirports(load<AirportTable>("public/airports.json"));
-  setAircraftMapping(load<MappingFile>("public/aircraft-mapping.json"));
-  setFuelBurn(load<FuelBurnFile>("public/eea-fuel-burn.json"));
-  setSeatConfigs(load<SeatConfigFile>("public/seat-configs.json"));
-  setGaiaAirports(load<Record<string, [number, number]>>("public/gaia-airports.json"));
-  setGaiaCountries(load<Record<string, [number, number]>>("public/gaia-countries.json"));
+  setAirports(load<AirportTable>("data/json/airports.json"));
+  setAircraftMapping(load<MappingFile>("data/json/aircraft-mapping.json"));
+  setFuelBurn(load<FuelBurnFile>("data/json/eea-fuel-burn.json"));
+  setSeatConfigs(load<SeatConfigFile>("data/json/seat-configs.json"));
+  setGaiaAirports(load<Record<string, [number, number]>>("data/json/gaia-airports.json"));
+  setGaiaCountries(load<Record<string, [number, number]>>("data/json/gaia-countries.json"));
   bootstrapped = true;
 }
 

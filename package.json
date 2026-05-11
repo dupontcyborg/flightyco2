@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "prebuild": "tsx scripts/hash-public-assets.ts",
+    "predev": "tsx scripts/hash-public-assets.ts",
+    "hash-assets": "tsx scripts/hash-public-assets.ts",
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check && tsc --noEmit",

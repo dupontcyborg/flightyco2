@@ -1,6 +1,6 @@
 /**
  * Extract DEFRA 2024 GHG Conversion Factors for air travel into
- * public/defra-factors.json.
+ * data/json/defra-factors.json.
  *
  * Source: UK Government GHG Conversion Factors 2024, "Business travel- air"
  * sheet of the full-set xlsx (data/uk-gov/...).
@@ -29,7 +29,7 @@ import ExcelJS from "exceljs";
 
 const REPO = resolve(fileURLToPath(import.meta.url), "../..");
 const XLSX = resolve(REPO, "data/uk-gov/ghg-conversion-factors-2024-full.xlsx");
-const OUT = resolve(REPO, "public/defra-factors.json");
+const OUT = resolve(REPO, "data/json/defra-factors.json");
 const VERSION = "DEFRA-2024-v1.1";
 
 type HaulCategory = "domestic_uk" | "short_haul_uk" | "long_haul_uk" | "international";

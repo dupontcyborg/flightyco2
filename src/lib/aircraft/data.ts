@@ -2,7 +2,8 @@
  * In-memory aircraft IATA→ICAO mapping, sourced from
  * TIM Appendix A + data/aircraft-aliases.yaml.
  *
- * The data lives in /public/aircraft-mapping.json and is loaded lazily.
+ * The data is fetched at runtime from the content-hashed URL in
+ * `src/lib/asset-manifest.ts` (generated from `data/json/aircraft-mapping.json`).
  * Tests can populate the store directly via `setAircraftMapping()`.
  */
 

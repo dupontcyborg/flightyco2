@@ -1,5 +1,5 @@
 /**
- * Refresh public/eea-fuel-burn.json from the EEA Master Emissions Calculator xlsx.
+ * Refresh data/json/eea-fuel-burn.json from the EEA Master Emissions Calculator xlsx.
  *
  * Source: EMEP/EEA Air Pollutant Emission Inventory Guidebook 2023, Annex
  * 1.A.3.a Aviation, Master Emissions Calculator v1.5_18_09_2024.
@@ -36,7 +36,7 @@ import ExcelJS from "exceljs";
 
 const REPO = resolve(fileURLToPath(import.meta.url), "../..");
 const XLSX = resolve(REPO, "data/eea/master-emissions-calculator-v1.5.xlsx");
-const OUT = resolve(REPO, "public/eea-fuel-burn.json");
+const OUT = resolve(REPO, "data/json/eea-fuel-burn.json");
 const VERSION = "EEA-MEC-2023-v1.5_18_09_2024";
 
 interface AircraftEntry {
@@ -49,7 +49,7 @@ async function main(): Promise<void> {
   if (!existsSync(XLSX)) {
     console.log(`==> EEA xlsx not present at ${XLSX}`);
     console.log("    See data/README.md § EEA for how to obtain it.");
-    console.log("    Existing public/eea-fuel-burn.json (if any) is unchanged.");
+    console.log("    Existing data/json/eea-fuel-burn.json (if any) is unchanged.");
     return;
   }
 

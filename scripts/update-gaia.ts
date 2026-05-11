@@ -16,7 +16,7 @@ import { downloadIfMissing, logFetch, parseFlags } from "./lib/cli.ts";
 
 const REPO = resolve(fileURLToPath(import.meta.url), "../..");
 const GAIA_DIR = resolve(REPO, "data/gaia");
-const PUBLIC_DIR = resolve(REPO, "public");
+const OUT_DIR = resolve(REPO, "data/json");
 
 const SOURCES = [
   {
@@ -68,7 +68,7 @@ async function main(): Promise<void> {
 
   console.log("\nBuilding GAIA JSON tables");
   for (const src of SOURCES) {
-    convert(resolve(GAIA_DIR, src.csv), resolve(PUBLIC_DIR, src.json), src.keyCol);
+    convert(resolve(GAIA_DIR, src.csv), resolve(OUT_DIR, src.json), src.keyCol);
   }
 }
 

@@ -1,9 +1,10 @@
 /**
  * In-memory airport reference data.
  *
- * The actual data lives in /public/airports.json and is loaded lazily by
- * `loadAirports()` in `./load.ts`. Tests can populate the store directly
- * via `setAirports()` to avoid a network round-trip.
+ * The actual data is fetched at runtime from the content-hashed URL in
+ * `src/lib/asset-manifest.ts` (generated from `data/json/airports.json`).
+ * Tests can populate the store directly via `setAirports()` to avoid a
+ * network round-trip.
  */
 
 export interface Airport {
