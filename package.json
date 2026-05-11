@@ -11,7 +11,11 @@
     "check": "astro check && tsc --noEmit",
     "lint": "biome check .",
     "format": "biome format --write .",
-    "fix": "biome check --write ."
+    "fix": "biome check --write .",
+    "data": "tsx scripts/update-data.ts",
+    "data:airports": "tsx scripts/update-airports.ts",
+    "data:gaia": "tsx scripts/update-gaia.ts",
+    "data:eea": "tsx scripts/update-eea.ts"
   },
   "dependencies": {
     "@astrojs/svelte": "^8.1.0",
@@ -25,7 +29,9 @@
     "@biomejs/biome": "^2.4.15",
     "@tailwindcss/vite": "^4.3.0",
     "@types/papaparse": "^5.5.2",
+    "exceljs": "^4.4.0",
     "tailwindcss": "^4.3.0",
-    "typescript": "^6.0.3"
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   }
 }

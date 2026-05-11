@@ -48,8 +48,8 @@ No login. No email capture. No "sign up to see your full results." Ever.
 - Tag each flight with a data quality level (`high`, `medium`, `low`) based on completeness.
 
 ### Emission Calculation
-- **Method A (default, ships v1):** Distance-based with DEFRA 2024 emission factors. Distance buckets (domestic / short-haul / long-haul), cabin class multipliers, 9% distance uplift for non-direct routing, 1.9× non-CO₂ multiplier applied by default with a toggle to disable.
-- **Method B (ships v1.1):** Aircraft-aware calculation using Google Travel Impact Model methodology. Falls back to Method A when aircraft data is missing or unrecognized.
+- **DEFRA (default, ships v1):** Distance-based with DEFRA 2024 emission factors. Distance buckets (domestic / short-haul / long-haul), cabin class multipliers, 9% distance uplift for non-direct routing, 1.9× non-CO₂ multiplier applied by default with a toggle to disable.
+- **TIM (ships v1.1):** Aircraft-aware calculation using Google Travel Impact Model methodology. Falls back to DEFRA when aircraft data is missing or unrecognized.
 - Each flight's result records which method was used and what factor table version (e.g., `DEFRA-2024`) was applied. Past calculations remain stable when factors update.
 - All emissions reported in kg CO₂e. Aggregate to metric tons in UI.
 
@@ -108,7 +108,7 @@ No login. No email capture. No "sign up to see your full results." Ever.
 ## Tech Stack
 
 - **Framework:** Astro 6.x for static shell + Svelte islands for interactive surfaces (uploader, charts, sliders).
-- **Language:** TypeScript 6.0 throughout.
+- **Language:** TypeScript 5.9 throughout.
 - **Lint/format:** Biome (single tool for both).
 - **CSV parsing:** PapaParse.
 - **Validation:** Zod.
@@ -137,7 +137,7 @@ The methodology is the product. The site must include:
 ## Out of Scope, Possibly Later
 
 - v1.1: share card (PNG export of summary, designed as a receipt rather than a trophy).
-- v1.1: Method B (aircraft-aware via TIM).
+- v1.1: TIM method (aircraft-aware via Google's Travel Impact Model).
 - v2: support for other CSV formats (App in the Air, OpenFlights, manual entry).
 - v2: lifetime view across all uploaded years.
 - v2: anonymous shareable URLs (encoded in hash, no backend).
