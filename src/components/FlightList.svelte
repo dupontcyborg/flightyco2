@@ -24,7 +24,8 @@
   const visible = $derived(sorted.slice(0, limit));
   const remaining = $derived(Math.max(0, sorted.length - visible.length));
 
-  const monthLabel = (d: Date) => d.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
+  const dateLabel = (d: Date) =>
+    d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 
   // Heavy = top decile in this dataset.
   const heavyThreshold = $derived.by(() => {
@@ -51,6 +52,7 @@
 
   <ul class="list-rows" role="list">
     {#each visible as f, i (`${f.flight.id}-${i}`)}
+      {@const iata = icaoToIata(f.flight.airline) ?? f.flight.airline ?? ""}
       <li>
         <button
           class="row"
@@ -58,14 +60,29 @@
           onclick={() => onPick?.(f)}
           aria-label="{f.flight.from} to {f.flight.actualTo} on {f.date.toDateString()}"
         >
-          <div class="datebox ft-mono">
-            <div class="day">{String(f.date.getUTCDate()).padStart(2, "0")}</div>
-            <div class="mon">{monthLabel(f.date)}</div>
+          <div class="airline" title={iata}>
+            {#if iata}
+              <img
+                class="airline-logo"
+                src="/airlines/{iata}.svg"
+                alt=""
+                loading="lazy"
+                onerror={(e) => {
+                  const img = e.currentTarget as HTMLImageElement;
+                  img.style.display = "none";
+                  (img.nextElementSibling as HTMLElement | null)?.style.setProperty("display", "inline");
+                }}
+              />
+              <span class="airline-fallback" style="display:none">{iata}</span>
+            {:else}
+              <span class="airline-fallback">??</span>
+            {/if}
           </div>
           <div class="midcol">
             <div class="meta">
-              <span class="ft-quality-dot {f.flight.quality}" title="data quality: {f.flight.quality}"></span>
-              <span class="flightno">{icaoToIata(f.flight.airline) ?? f.flight.airline ?? ""} {f.flight.flightNumber ?? ""}</span>
+              <span class="date">{dateLabel(f.date)}</span>
+              <span class="dot">·</span>
+              <span class="flightno">{iata} {f.flight.flightNumber ?? ""}</span>
               <span class="dot">·</span>
               <span class="ac">{f.flight.aircraft ?? "unknown aircraft"}</span>
               <span class="dot">·</span>
@@ -136,15 +153,32 @@
   .list-rows li:last-child .row {
     border-bottom: none;
   }
-  .datebox {
-    font-size: 12px;
-    color: var(--color-text3);
-    letter-spacing: 0.04em;
+  .airline {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    background: #3a3a3a;
+    border: 1px solid var(--color-line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
   }
-  .day {
-    font-size: 16px;
-    color: var(--color-text);
-    font-weight: 600;
+  .airline-logo {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    display: block;
+  }
+  .airline-fallback {
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.02em;
+  }
+  .date {
+    color: var(--color-text3);
   }
   .meta {
     display: flex;

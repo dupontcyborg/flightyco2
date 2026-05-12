@@ -8,6 +8,7 @@
   import {
     DEFAULT_EMISSION_OPTIONS,
     loadAllReferenceData,
+    prefetchAirlineLogos,
     type CabinClass,
   } from "~/lib/index.ts";
   import { ASSETS } from "~/lib/asset-manifest.ts";
@@ -80,7 +81,11 @@
     screen = "crunching";
     try {
       const minDelay = new Promise((r) => setTimeout(r, MIN_CRUNCH_MS));
-      const work = processWithFallback(text, cabinFallback);
+      const work = processWithFallback(text, cabinFallback).then((b) => {
+        // Warm the airline-logo cache while the crunching animation finishes.
+        prefetchAirlineLogos(b.enrichment.enriched.map((e) => e.flight.airline));
+        return b;
+      });
       const [b] = await Promise.all([work, minDelay]);
       csvText = text;
       bundle = b;

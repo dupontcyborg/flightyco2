@@ -26,3 +26,9 @@
 # hashes so a long TTL is safe.
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Airline brand logos — content is stable (we hand-curate, rarely change).
+# 1-year TTL, immutable. If we ever update one, deploy bumps the file and
+# any old browser sees a stale logo until the cache expires; that's fine.
+/airlines/*
+  Cache-Control: public, max-age=31536000, immutable
