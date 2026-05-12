@@ -5,7 +5,7 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "dev": "astro dev",
+    "dev": "PUBLIC_DEBUG_IMPORT=1 astro dev",
     "build": "astro build",
     "prebuild": "tsx scripts/hash-public-assets.ts",
     "predev": "tsx scripts/hash-public-assets.ts",

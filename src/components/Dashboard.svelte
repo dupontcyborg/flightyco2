@@ -25,6 +25,8 @@
     scope = $bindable(),
   }: Props = $props();
 
+  const knownAircraft = $derived(scopeView.byAircraft.filter((a) => a.aircraft !== "(unknown)"));
+
   // RFI-live headline.
   const headlineKg = $derived.by(() => {
     let sum = 0;
@@ -169,22 +171,29 @@
 
     <div class="ft-card">
       <h2 class="ft-rounded card-title">Top emissions by aircraft</h2>
-      {#if scopeView.byAircraft.length === 0}
+      {#if knownAircraft.length === 0}
         <p class="empty">No aircraft data in this view.</p>
       {:else}
-        <ul class="aclist" role="list">
-          {#each scopeView.byAircraft.slice(0, 6) as a (a.aircraft)}
-            <li>
-              <div class="aclist-row">
-                <span class="aclist-name">{a.aircraft}</span>
-                <div class="aclist-bar">
-                  <div class="aclist-fill" style="width: {a.shareOfTotal * 100}%"></div>
-                </div>
-                <span class="aclist-pct ft-num">{Math.round(a.shareOfTotal * 100)}%</span>
-              </div>
-            </li>
-          {/each}
-        </ul>
+        <table class="actable">
+          <thead>
+            <tr>
+              <th class="ac-aircraft">Aircraft</th>
+              <th class="ac-num">Flights</th>
+              <th class="ac-num">Distance</th>
+              <th class="ac-num">tCO₂e</th>
+            </tr>
+          </thead>
+          <tbody>
+            {#each knownAircraft.slice(0, 8) as a (a.aircraft)}
+              <tr>
+                <td class="ac-aircraft" title={a.aircraft}>{a.aircraft}</td>
+                <td class="ac-num ft-num">{a.flightCount}</td>
+                <td class="ac-num ft-num">{Math.round(a.totalDistanceKm).toLocaleString()}<span class="ac-unit">km</span></td>
+                <td class="ac-num ft-num">{(a.totalKgCo2e / 1000).toFixed(2)}</td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
       {/if}
     </div>
   </div>
@@ -270,7 +279,7 @@
 
   .below {
     display: grid;
-    grid-template-columns: 1.6fr 1fr;
+    grid-template-columns: 1fr;
     gap: 12px;
     margin-top: 16px;
   }
@@ -286,40 +295,48 @@
     margin: 0 0 14px;
   }
 
-  .aclist {
-    list-style: none;
-    margin: 4px 0 0;
-    padding: 0;
-  }
-  .aclist-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 80px 40px;
-    align-items: center;
-    gap: 12px;
-    padding: 6px 0;
+  .actable {
+    width: 100%;
+    border-collapse: collapse;
     font-size: 13px;
   }
-  .aclist-name {
+  .actable thead th {
+    text-align: right;
+    font-weight: 600;
+    color: var(--color-text3);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 4px 8px 8px;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .actable thead th.ac-aircraft {
+    text-align: left;
+  }
+  .actable tbody td {
+    padding: 8px;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .actable tbody tr:last-child td {
+    border-bottom: none;
+  }
+  .actable .ac-aircraft {
     color: var(--color-text);
     font-weight: 600;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    text-align: left;
+    white-space: nowrap;
+    width: 100%;
+  }
+  .actable .ac-num {
+    text-align: right;
+    color: var(--color-text);
+    font-weight: 600;
     white-space: nowrap;
   }
-  .aclist-bar {
-    height: 8px;
-    background: var(--color-line);
-    border-radius: 999px;
-    overflow: hidden;
-  }
-  .aclist-fill {
-    height: 100%;
-    background: var(--color-violet);
-    border-radius: 999px;
-  }
-  .aclist-pct {
-    text-align: right;
-    color: var(--color-text2);
+  .ac-unit {
+    font-size: 11px;
+    color: var(--color-text3);
+    margin-left: 2px;
     font-weight: 600;
   }
   .empty {

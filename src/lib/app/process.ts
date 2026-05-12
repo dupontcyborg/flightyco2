@@ -11,6 +11,7 @@ import {
   aggregateByCabin,
   aggregateByMonth,
   aggregateByYear,
+  aircraftToIcao,
   calculateTim,
   DEFAULT_EMISSION_OPTIONS,
   type EmissionOptions,
@@ -46,6 +47,7 @@ export async function processCsv(
 ): Promise<ProcessedBundle> {
   await loadAllReferenceData({
     airports: ASSETS.airports,
+    airlines: ASSETS.airlines,
     mapping: ASSETS.aircraftMapping,
     fuelBurn: ASSETS.fuelBurn,
     seatConfigs: ASSETS.seatConfigs,
@@ -56,6 +58,12 @@ export async function processCsv(
   const parse = parseFlightyCsv(csvText);
   const enrichment = enrichFlights(parse.flights, (input) => calculateTim(input, options));
 
+  const env = (import.meta as unknown as { env?: Record<string, string | boolean | undefined> })
+    .env;
+  if (env?.DEV && env?.PUBLIC_DEBUG_IMPORT) {
+    logImportDebug(parse, enrichment);
+  }
+
   return {
     parse,
     enrichment,
@@ -65,6 +73,43 @@ export async function processCsv(
     yearAggregates: aggregateByYear(enrichment.enriched),
     years: [...new Set(enrichment.enriched.map((e) => e.year))].sort((a, b) => b - a),
   };
+}
+
+function logImportDebug(parse: ParseResult, enrichment: EnrichmentResult): void {
+  const unknownAircraft = new Map<string, number>();
+  const unmappedAircraft = new Map<string, number>();
+  for (const e of enrichment.enriched) {
+    const ac = e.flight.aircraft;
+    if (!ac) {
+      unknownAircraft.set("(empty)", (unknownAircraft.get("(empty)") ?? 0) + 1);
+    } else if (aircraftToIcao(ac) === null) {
+      unmappedAircraft.set(ac, (unmappedAircraft.get(ac) ?? 0) + 1);
+    }
+  }
+
+  const unknownAirports = new Set<string>();
+  const otherFailures: { reason: string; count: number }[] = [];
+  const reasonCounts = new Map<string, number>();
+  for (const u of enrichment.unresolved) {
+    const m = /unknown airport\(s\): (\S+) or (\S+)/.exec(u.reason);
+    if (m && m[1] && m[2]) {
+      unknownAirports.add(m[1]);
+      unknownAirports.add(m[2]);
+    } else {
+      reasonCounts.set(u.reason, (reasonCounts.get(u.reason) ?? 0) + 1);
+    }
+  }
+  for (const [reason, count] of reasonCounts) otherFailures.push({ reason, count });
+
+  console.groupCollapsed(
+    `[flightyco2] import debug — ${parse.flights.length} parsed, ${enrichment.enriched.length} enriched, ${enrichment.unresolved.length} unresolved, ${enrichment.cancelled.length} cancelled`,
+  );
+  console.log("aircraft with empty field (counts):", Object.fromEntries(unknownAircraft));
+  console.log("aircraft strings not in mapping (counts):", Object.fromEntries(unmappedAircraft));
+  console.log("airport IATA codes not in table:", [...unknownAirports].sort());
+  console.log("other enrichment failures:", otherFailures);
+  console.log("parse.skipped:", parse.skipped);
+  console.groupEnd();
 }
 
 /** Selection key for the dashboard scope. `null` = lifetime (all years). */

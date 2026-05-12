@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { EnrichedFlight } from "~/lib/index.ts";
+  import { type EnrichedFlight, icaoToIata } from "~/lib/index.ts";
 
   interface Props {
     flights: EnrichedFlight[];
@@ -50,7 +50,7 @@
   </header>
 
   <ul class="list-rows" role="list">
-    {#each visible as f (f.flight.id)}
+    {#each visible as f, i (`${f.flight.id}-${i}`)}
       <li>
         <button
           class="row"
@@ -65,7 +65,7 @@
           <div class="midcol">
             <div class="meta">
               <span class="ft-quality-dot {f.flight.quality}" title="data quality: {f.flight.quality}"></span>
-              <span class="flightno">{f.flight.airline ?? ""} {f.flight.flightNumber ?? ""}</span>
+              <span class="flightno">{icaoToIata(f.flight.airline) ?? f.flight.airline ?? ""} {f.flight.flightNumber ?? ""}</span>
               <span class="dot">·</span>
               <span class="ac">{f.flight.aircraft ?? "unknown aircraft"}</span>
               <span class="dot">·</span>

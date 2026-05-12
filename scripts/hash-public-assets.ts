@@ -40,6 +40,7 @@ const MANIFEST_PATH = resolve(REPO, "src/lib/asset-manifest.ts");
  */
 const SOURCE_TO_KEY: Record<string, string> = {
   "airports.json": "airports",
+  "airlines.json": "airlines",
   "aircraft-mapping.json": "aircraftMapping",
   "eea-fuel-burn.json": "fuelBurn",
   "seat-configs.json": "seatConfigs",

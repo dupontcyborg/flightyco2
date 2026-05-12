@@ -183,6 +183,7 @@ The `src/lib/` tree is the calculation engine. UI calls in, never the other way.
 
 ## v1.1 — next
 
+- [ ] **Airline logos in flight list**. Port `overhead/assets/*.svg` (80 brand marks, IATA-named, ~50 KB total) into `src/assets/airlines/` (or `public/airlines/`). Render next to the IATA flight number via `?raw` inline or `<img>`. Fall back to text when no asset for the IATA.
 - [ ] **Share card** (PNG export of summary, austere "receipt" aesthetic, no Wrapped-y badges).
 - [ ] Per-route stage-length adjustment in TIM (short-haul less efficient than long-haul for same airframe).
 - [ ] Full TIM JSON dataset with route-bucketed lookups, not just airframe-level averages.

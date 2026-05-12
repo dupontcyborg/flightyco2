@@ -38,6 +38,8 @@ export {
   loadAircraftData,
   type SupportLevel,
 } from "./aircraft/index.ts";
+// Airlines (ICAO→IATA)
+export { icaoToIata, loadAirlines } from "./airlines/index.ts";
 // Airports
 export {
   type Airport,

@@ -12,11 +12,13 @@
  */
 
 import { loadAircraftData } from "./aircraft/load.ts";
+import { loadAirlines } from "./airlines/load.ts";
 import { loadAirports } from "./airports/load.ts";
 import { loadGaia } from "./gaia/load.ts";
 
 export interface LoadAllUrls {
   airports?: string;
+  airlines?: string;
   mapping?: string;
   fuelBurn?: string;
   seatConfigs?: string;
@@ -32,6 +34,7 @@ export function loadAllReferenceData(urls: LoadAllUrls = {}): Promise<void> {
     try {
       await Promise.all([
         loadAirports(urls.airports),
+        loadAirlines(urls.airlines),
         loadAircraftData({
           mapping: urls.mapping,
           fuelBurn: urls.fuelBurn,

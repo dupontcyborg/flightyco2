@@ -16,6 +16,7 @@
 
 export interface AssetManifest {
   aircraftMapping: string;
+  airlines: string;
   airports: string;
   defraFactors: string;
   fuelBurn: string;
@@ -26,6 +27,7 @@ export interface AssetManifest {
 
 export const ASSETS: AssetManifest = {
   aircraftMapping: "/aircraft-mapping.103c8632.json",
+  airlines: "/airlines.eabd7897.json",
   airports: "/airports.e2f8790e.json",
   defraFactors: "/defra-factors.cde53aaf.json",
   fuelBurn: "/eea-fuel-burn.63813e0d.json",

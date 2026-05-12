@@ -8,24 +8,27 @@
   let { flights, rfi }: Props = $props();
 
   const byYear = $derived.by(() => {
-    const map = new Map<number, number>();
+    const map = new Map<number, { kg: number; count: number }>();
     for (const f of flights) {
       const v = rfi ? f.result.kgCo2e : f.result.kgCo2;
-      map.set(f.year, (map.get(f.year) ?? 0) + v);
+      const cur = map.get(f.year) ?? { kg: 0, count: 0 };
+      cur.kg += v;
+      cur.count += 1;
+      map.set(f.year, cur);
     }
     return [...map.entries()].sort((a, b) => a[0] - b[0]);
   });
-  const max = $derived(Math.max(...byYear.map(([, v]) => v), 1));
+  const max = $derived(Math.max(...byYear.map(([, v]) => v.kg), 1));
 </script>
 
 <div class="bars">
   {#each byYear as [year, v] (year)}
     <div class="col">
       <div class="track">
-        <span class="val ft-mono" style="bottom: calc({(v / max) * 100}% + 4px)">
-          {(v / 1000).toFixed(1)}
+        <span class="val ft-mono" style="bottom: calc({(v.kg / max) * 100}% + 4px)">
+          {(v.kg / 1000).toFixed(1)}
         </span>
-        <div class="fill" style="height: {(v / max) * 100}%"></div>
+        <div class="fill" style="height: {(v.kg / max) * 100}%"></div>
       </div>
       <div class="lbl ft-mono">{year}</div>
     </div>
@@ -37,7 +40,7 @@
     display: flex;
     gap: 10px;
     align-items: flex-end;
-    height: 160px;
+    height: 200px;
   }
   .col {
     flex: 1;
@@ -47,7 +50,7 @@
     min-width: 0;
   }
   .track {
-    height: 140px;
+    height: 180px;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -55,15 +58,30 @@
   }
   .val {
     position: absolute;
-    left: 0;
-    right: 0;
+    left: 50%;
     text-align: center;
     font-size: 10px;
     color: var(--color-text2);
+    transform: translateX(-50%) scale(1);
+    transform-origin: bottom center;
+    transition: transform 180ms cubic-bezier(0.34, 1.4, 0.64, 1), color 150ms ease;
+    pointer-events: none;
+    white-space: nowrap;
   }
   .fill {
     background: var(--color-accent);
     border-radius: 6px 6px 0 0;
+    position: relative;
+    transition: filter 150ms ease;
+    cursor: default;
+  }
+  .fill:hover {
+    filter: brightness(1.15);
+  }
+  .col:hover .val {
+    transform: translateX(-50%) scale(1.8);
+    color: var(--color-text);
+    font-weight: 700;
   }
   .lbl {
     text-align: center;

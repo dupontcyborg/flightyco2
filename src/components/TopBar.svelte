@@ -1,4 +1,6 @@
 <script lang="ts">
+  import logoWordmark from "../assets/logo-wordmark.svg?raw";
+
   type ModalKind = "methodology" | "howto";
 
   interface Props {
@@ -17,16 +19,7 @@
       disabled={!onReset}
       aria-label="flightyco2 home"
     >
-      <span class="ft-mark" aria-hidden="true">
-        <!-- Placeholder plane glyph — replace with the final mark when ready. -->
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path
-            d="M21 16v-2l-8-5V3.5C13 2.67 12.33 2 11.5 2S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"
-            fill="#fff"
-          />
-        </svg>
-      </span>
-      <span class="ft-wordmark">flightyco<span class="ft-sub">₂</span></span>
+      <span class="ft-logo" aria-label="flightyco2">{@html logoWordmark}</span>
     </button>
   </div>
   <nav class="ft-actions">
@@ -73,22 +66,14 @@
   .ft-brand-btn:disabled {
     cursor: default;
   }
-  .ft-mark {
-    width: 26px;
-    height: 26px;
-    border-radius: 8px;
-    background: var(--color-accent);
+  .ft-logo {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
   }
-  .ft-wordmark {
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-  }
-  .ft-sub {
-    font-feature-settings: "sups" 0;
+  .ft-logo :global(svg) {
+    height: 32px;
+    width: auto;
+    display: block;
   }
   .ft-actions {
     display: flex;

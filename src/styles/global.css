@@ -21,11 +21,32 @@
   --color-violet: #7d5cff;
 }
 
+html {
+  scrollbar-gutter: stable;
+  scrollbar-color: var(--color-line) transparent;
+  scrollbar-width: thin;
+}
 html,
 body {
   background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-sans);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-line);
+  border-radius: 999px;
+  border: 2px solid var(--color-bg);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text3);
 }
 
 .ft-num {
