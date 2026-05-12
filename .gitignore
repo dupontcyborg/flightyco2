@@ -15,3 +15,5 @@ data/wikipedia/
 # `tsx scripts/hash-public-assets.ts` (predev/prebuild). The unhashed
 # source files in data/json/ and src/lib/asset-manifest.ts are committed.
 public/*.[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].json
+
+design/

@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans:
+    -apple-system, "SF Pro Display", "Inter", system-ui, sans-serif;
+  --font-rounded:
+    -apple-system, "SF Pro Rounded", "Inter", system-ui, sans-serif;
+  --font-mono:
+    "SF Mono", "JetBrains Mono", ui-monospace, monospace;
+
+  --color-bg: #0a0a0c;
+  --color-card: #141418;
+  --color-card2: #1c1c20;
+  --color-line: #26262d;
+  --color-text: #ffffff;
+  --color-text2: #a1a1a6;
+  --color-text3: #8a8a90;
+  --color-accent: #0ab4ff;
+  --color-warn: #ff5a5a;
+  --color-good: #34c759;
+  --color-violet: #7d5cff;
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+.ft-num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.ft-rounded {
+  font-family: var(--font-rounded);
+  letter-spacing: -0.02em;
+}
+
+.ft-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.ft-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text3);
+}
+
+.ft-card {
+  background: var(--color-card);
+  border: 1px solid var(--color-line);
+  border-radius: 18px;
+  padding: 22px 24px;
+}
+
+.ft-card-tight {
+  background: var(--color-card);
+  border: 1px solid var(--color-line);
+  border-radius: 16px;
+  padding: 18px 20px;
+}
+
+.ft-btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 20px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+.ft-btn-ghost {
+  background: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--color-line);
+}
+
+.ft-btn-accent {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.ft-toggle {
+  display: inline-flex;
+  background: var(--color-card2);
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  padding: 3px;
+}
+.ft-toggle button {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text2);
+}
+.ft-toggle button.on {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+.ft-quality-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+}
+.ft-quality-dot.high { background: var(--color-good); }
+.ft-quality-dot.medium { background: #ffb84d; }
+.ft-quality-dot.low { background: var(--color-warn); }

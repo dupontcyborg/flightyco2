@@ -1,0 +1,14 @@
+Date,Airline,Flight,From,To,Dep Terminal,Dep Gate,Arr Terminal,Arr Gate,Canceled,Diverted To,Gate Departure (Scheduled),Gate Departure (Actual),Take off (Scheduled),Take off (Actual),Landing (Scheduled),Landing (Actual),Gate Arrival (Scheduled),Gate Arrival (Actual),Aircraft Type Name,Tail Number,PNR,Seat,Seat Type,Cabin Class,Flight Reason,Notes,Flight Flighty ID,Airline Flighty ID,Departure Airport Flighty ID,Arrival Airport Flighty ID,Diverted To Airport Flighty ID,Aircraft Type Flighty ID
+2022-03-15,DAL,1234,LGA,BOS,,,,,false,,2022-03-15T08:00,,,,,,,,Boeing 737-800,,,,,ECONOMY,,,fixture-001,airline-dal,apt-lga,apt-bos,,acft-b738
+2022-07-22,BAW,178,JFK,LHR,,,,,false,,2022-07-22T18:30,,,,,,,,Boeing 787-9,,,,,BUSINESS,,,fixture-002,airline-baw,apt-jfk,apt-lhr,,acft-b789
+2022-09-01,AAL,2400,ATL,MCO,,,,,false,,2022-09-01T11:15,,,,,,,,Airbus A321,,,,,PREMIUM_ECONOMY,,,fixture-003,airline-aal,apt-atl,apt-mco,,acft-a321
+2023-01-10,UAL,1850,JFK,LAX,,,,,false,,2023-01-10T07:45,,,,,,,,Boeing 737-900ER,,,,,ECONOMY,,,fixture-004,airline-ual,apt-jfk,apt-lax,,acft-b739er
+2023-04-05,AAL,100,JFK,LHR,,,,,false,,2023-04-05T21:00,,,,,,,,Boeing 787-9,,,,,ECONOMY,,,fixture-005,airline-aal,apt-jfk,apt-lhr,,acft-b789
+2023-04-05,BAW,1500,JFK,LHR,,,,,false,,2023-04-05T21:00,,,,,,,,Boeing 787-9,,,,,ECONOMY,,,fixture-006,airline-baw,apt-jfk,apt-lhr,,acft-b789
+2023-06-20,UAL,837,SFO,NRT,,,,,false,,2023-06-20T11:00,,,,,,,,Boeing 787-9,,,,,FIRST,,,fixture-007,airline-ual,apt-sfo,apt-nrt,,acft-b789
+2023-11-30,DAL,2210,ATL,LGA,,,,,true,,2023-11-30T15:00,,,,,,,,Airbus A321,,,,,ECONOMY,,,fixture-008,airline-dal,apt-atl,apt-lga,,acft-a321
+2024-02-14,DAL,4567,LAX,SFO,,,,,false,,2024-02-14T09:30,,,,,,,,Bombardier CRJ900,,,,,ECONOMY,,,fixture-009,airline-dal,apt-lax,apt-sfo,,acft-crj9
+2024-05-01,AAL,1820,BOS,MIA,,,,,false,,2024-05-01T13:00,,,,,,,,Boeing 737-800,,,,,,,,fixture-010,airline-aal,apt-bos,apt-mia,,acft-b738
+2024-08-10,DAL,200,JFK,LAX,,,,,false,SAN,2024-08-10T10:00,,,,,,,,Boeing 757-200,,,,,ECONOMY,,,fixture-011,airline-dal,apt-jfk,apt-lax,apt-san,acft-b752
+2024-10-25,UAL,500,ORD,DEN,,,,,false,,2024-10-25T16:00,,,,,,,,,,,,,ECONOMY,,,fixture-012,airline-ual,apt-ord,apt-den,,
+2024-12-01,AFR,1680,CDG,LHR,,,,,false,,2024-12-01T07:30,,,,,,,,Airbus A320,,,,,ECONOMY,,,fixture-013,airline-afr,apt-cdg,apt-lhr,,acft-a320
