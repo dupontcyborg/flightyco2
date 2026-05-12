@@ -98,12 +98,29 @@
   }
 
   @media (max-width: 640px) {
+    .ft-bar {
+      padding: 12px 14px;
+      gap: 10px;
+    }
+    .ft-logo :global(svg) {
+      height: 24px;
+    }
     .ft-iconbtn {
-      font-size: 12px;
+      font-size: 11px;
       padding: 6px 10px;
+      gap: 0;
     }
     .ft-iconbtn svg {
       display: none;
+    }
+    .ft-actions {
+      gap: 6px;
+    }
+  }
+  @media (max-width: 380px) {
+    .ft-iconbtn {
+      font-size: 10px;
+      padding: 6px 8px;
     }
   }
 </style>

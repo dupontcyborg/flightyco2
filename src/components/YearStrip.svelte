@@ -155,8 +155,16 @@
     color: var(--color-text);
   }
 
+  /*
+   * Touch devices: keep the fade-to-edge gradient as a scroll affordance
+   * (controlled by .show — only shown on the actually-scrollable side)
+   * but drop the arrow and hover-scroll behavior.
+   */
   @media (hover: none) {
     .edge {
+      pointer-events: none;
+    }
+    .edge svg {
       display: none;
     }
   }

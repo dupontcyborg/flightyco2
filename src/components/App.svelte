@@ -25,6 +25,14 @@
   type ModalKind = "methodology" | "howto" | null;
   type Screen = "upload" | "crunching" | "dashboard";
 
+  interface Props {
+    /** Hint from the Astro page: "restoring" → render Crunching at SSR so
+     * a refresh on /report doesn't flash the upload screen before
+     * sessionStorage is read. */
+    initialScreen?: "upload" | "restoring";
+  }
+  let { initialScreen = "upload" }: Props = $props();
+
   /**
    * 10 MB hard ceiling. A real Flighty CSV is ~200 bytes/row — even
    * 10,000 flights lands at ~2 MB. 10 MB rejects a misclicked GB-sized
@@ -40,15 +48,9 @@
    */
   const MIN_CRUNCH_MS = 650;
 
-  // Initialize from URL synchronously so a refresh on /report doesn't flash
-  // the upload screen before the $effect restores from sessionStorage.
-  const initialScreen: Screen =
-    typeof window !== "undefined" &&
-    window.location.pathname.startsWith("/report") &&
-    sessionStorage.getItem("flightyco2-csv")
-      ? "crunching"
-      : "upload";
-  let screen: Screen = $state(initialScreen);
+  // SSR renders with the prop-supplied initial state (Crunching for
+  // /report) so there's no flash before client-side restore kicks in.
+  let screen: Screen = $state(initialScreen === "restoring" ? "crunching" : "upload");
   let bundle: ProcessedBundle | null = $state(null);
   let csvText: string | null = $state(null);
   let rfi: boolean = $state(true);
@@ -91,6 +93,7 @@
         restoreCsv(stored);
       } else {
         history.replaceState(null, "", "/");
+        screen = "upload";
       }
     }
 

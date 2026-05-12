@@ -127,7 +127,7 @@
       </div>
     </div>
 
-    <div class="stat">
+    <div class="stat stat-distance">
       <div class="ft-eyebrow">DISTANCE</div>
       <div class="ft-rounded ft-num stat-num">
         {tDistance.value.toFixed(1)}<span class="stat-unit">k km</span>
@@ -179,7 +179,7 @@
             <tr>
               <th class="ac-aircraft">Aircraft</th>
               <th class="ac-num">Flights</th>
-              <th class="ac-num">Distance</th>
+              <th class="ac-num ac-distance">Distance</th>
               <th class="ac-num">tCO₂e</th>
             </tr>
           </thead>
@@ -188,7 +188,7 @@
               <tr>
                 <td class="ac-aircraft" title={a.aircraft}>{a.aircraft}</td>
                 <td class="ac-num ft-num">{a.flightCount}</td>
-                <td class="ac-num ft-num">{Math.round(a.totalDistanceKm).toLocaleString()}<span class="ac-unit">km</span></td>
+                <td class="ac-num ac-distance ft-num">{Math.round(a.totalDistanceKm).toLocaleString()}<span class="ac-unit">km</span></td>
                 <td class="ac-num ft-num">{(a.totalKgCo2e / 1000).toFixed(2)}</td>
               </tr>
             {/each}
@@ -360,6 +360,15 @@
     .dash-head {
       flex-direction: column;
       align-items: flex-start;
+    }
+    .stat-distance {
+      display: none;
+    }
+    .ac-distance {
+      display: none;
+    }
+    .dash {
+      padding: 16px 12px 24px;
     }
   }
 </style>

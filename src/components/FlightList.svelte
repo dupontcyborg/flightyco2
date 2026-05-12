@@ -27,6 +27,8 @@
 
   const dateLabel = (d: Date) =>
     d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+  const dateLabelShort = (d: Date) =>
+    d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "2-digit", timeZone: "UTC" });
 
   // Heavy = top decile in this dataset.
   const heavyThreshold = $derived.by(() => {
@@ -70,10 +72,11 @@
           </div>
           <div class="midcol">
             <div class="meta">
-              <span class="date">{dateLabel(f.date)}</span>
+              <span class="date date-long">{dateLabel(f.date)}</span>
+              <span class="date date-short">{dateLabelShort(f.date)}</span>
               <span class="dot">·</span>
               <span class="flightno">{iata} {f.flight.flightNumber ?? ""}</span>
-              <span class="dot">·</span>
+              <span class="dot ac-dot">·</span>
               <span class="ac">{f.flight.aircraft ?? "unknown aircraft"}</span>
               <span class="dot">·</span>
               <span class="cab">{f.result.cabinClass}{f.result.cabinSource === "fallback" ? "*" : ""}</span>
@@ -172,11 +175,18 @@
   }
   .meta {
     display: flex;
+    flex-wrap: wrap;
     gap: 6px;
     align-items: center;
     color: var(--color-text2);
     font-size: 12px;
     margin-bottom: 4px;
+  }
+  .meta > span {
+    white-space: nowrap;
+  }
+  .date-short {
+    display: none;
   }
   .flightno {
     font-weight: 700;
@@ -234,13 +244,26 @@
 
   @media (max-width: 720px) {
     .row {
-      grid-template-columns: 44px minmax(0, 1fr) 84px;
+      grid-template-columns: 44px minmax(0, 1fr) 72px;
+      gap: 12px;
+      padding: 12px 8px;
     }
     .km {
       display: none;
     }
     .route {
       font-size: 16px;
+    }
+    .date-long,
+    .ac,
+    .ac-dot {
+      display: none;
+    }
+    .date-short {
+      display: inline;
+    }
+    .kg {
+      font-size: 20px;
     }
   }
 </style>
