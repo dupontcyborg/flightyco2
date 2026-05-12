@@ -77,6 +77,14 @@ See [`data/README.md`](./data/README.md) for upstream source attribution and lic
 - Airports - [OurAirports](https://ourairports.com/data/), public domain
 - Non-CO₂ multiplier - Lee et al. 2009/2021, default 1.9 with UI toggle
 
+## Airline brand logos
+
+`public/airlines/*.svg` contains airline brand marks (Delta, Air France,
+Korean Air, etc.), used solely to identify the carrier of each flight in
+the user's own uploaded CSV — i.e. nominative use, no endorsement implied,
+no resale. The trademarks remain the property of their respective owners;
+this project claims no rights to them.
+
 ## License
 
 MIT. Contibutions welcome.

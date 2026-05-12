@@ -40,7 +40,15 @@
    */
   const MIN_CRUNCH_MS = 650;
 
-  let screen: Screen = $state("upload");
+  // Initialize from URL synchronously so a refresh on /report doesn't flash
+  // the upload screen before the $effect restores from sessionStorage.
+  const initialScreen: Screen =
+    typeof window !== "undefined" &&
+    window.location.pathname.startsWith("/report") &&
+    sessionStorage.getItem("flightyco2-csv")
+      ? "crunching"
+      : "upload";
+  let screen: Screen = $state(initialScreen);
   let bundle: ProcessedBundle | null = $state(null);
   let csvText: string | null = $state(null);
   let rfi: boolean = $state(true);
@@ -50,6 +58,8 @@
   let modal: ModalKind = $state(null);
 
   const SAMPLE_URL = "/sample/canonical-fixture.csv";
+  const STORAGE_KEY = "flightyco2-csv";
+  const REPORT_PATH = "/report";
 
   /*
    * Pre-warm the reference data (~310 KB brotli across 6 JSONs) while the
@@ -62,6 +72,7 @@
   $effect(() => {
     loadAllReferenceData({
       airports: ASSETS.airports,
+      airlines: ASSETS.airlines,
       mapping: ASSETS.aircraftMapping,
       fuelBurn: ASSETS.fuelBurn,
       seatConfigs: ASSETS.seatConfigs,
@@ -70,7 +81,43 @@
     }).catch(() => {
       // Silent — the real upload path will report any failure with context.
     });
+
+    // Restore from sessionStorage if the user landed on /report (refresh /
+    // direct link). Empty storage on /report → bounce home.
+    const onReport = window.location.pathname.startsWith(REPORT_PATH);
+    if (onReport) {
+      const stored = sessionStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        restoreCsv(stored);
+      } else {
+        history.replaceState(null, "", "/");
+      }
+    }
+
+    const onPop = () => {
+      const isReport = window.location.pathname.startsWith(REPORT_PATH);
+      if (!isReport && screen === "dashboard") reset();
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
   });
+
+  async function restoreCsv(text: string) {
+    screen = "crunching";
+    try {
+      const b = await processWithFallback(text, cabinFallback);
+      prefetchAirlineLogos(b.enrichment.enriched.map((e) => e.flight.airline));
+      csvText = text;
+      bundle = b;
+      scope = null;
+      screen = "dashboard";
+    } catch (err) {
+      loadError = err instanceof Error ? err.message : String(err);
+      sessionStorage.removeItem(STORAGE_KEY);
+      history.replaceState(null, "", "/");
+      screen = "upload";
+    }
+  }
 
   function processWithFallback(text: string, fallback: CabinClass) {
     return processCsv(text, { ...DEFAULT_EMISSION_OPTIONS, cabinFallback: fallback });
@@ -90,6 +137,14 @@
       csvText = text;
       bundle = b;
       scope = null;
+      try {
+        sessionStorage.setItem(STORAGE_KEY, text);
+      } catch {
+        // Quota exceeded — proceed without persistence, refresh will go home.
+      }
+      if (window.location.pathname !== REPORT_PATH) {
+        history.pushState(null, "", REPORT_PATH);
+      }
       screen = "dashboard";
     } catch (err) {
       loadError = err instanceof Error ? err.message : String(err);
@@ -127,6 +182,14 @@
     csvText = null;
     scope = null;
     loadError = null;
+    try {
+      sessionStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // ignored
+    }
+    if (window.location.pathname !== "/") {
+      history.pushState(null, "", "/");
+    }
   }
 
   const scopeView = $derived(bundle ? buildScopeView(bundle, scope) : null);
@@ -181,15 +244,23 @@
    * dashboard phases. `position: relative` lets outgoing screens absolutely
    * overlay incoming ones without collapsing the layout mid-transition.
    */
+  /*
+   * Stage uses a 1×1 grid so all three screens (upload / crunching /
+   * dashboard) occupy the same cell. During transitions the outgoing
+   * screen fades while the incoming one flies in — both painted in the
+   * same place with no layout reflow when one unmounts.
+   */
   .stage {
     flex: 1;
-    display: flex;
-    flex-direction: column;
-    position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
   }
   .screen {
-    flex: 1;
+    grid-column: 1;
+    grid-row: 1;
     display: flex;
     flex-direction: column;
+    min-width: 0;
   }
 </style>

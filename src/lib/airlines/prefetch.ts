@@ -1,3 +1,4 @@
+import { AVAILABLE_AIRLINE_LOGOS } from "./available.ts";
 import { icaoToIata } from "./data.ts";
 
 /**
@@ -20,6 +21,7 @@ export function prefetchAirlineLogos(icaoCodes: Iterable<string | null | undefin
     const iata = icaoToIata(icao) ?? (icao && /^[A-Z0-9]{2}$/i.test(icao) ? icao.toUpperCase() : null);
     if (!iata || seen.has(iata)) continue;
     seen.add(iata);
+    if (!AVAILABLE_AIRLINE_LOGOS.has(iata)) continue;
 
     const link = document.createElement("link");
     link.rel = "prefetch";

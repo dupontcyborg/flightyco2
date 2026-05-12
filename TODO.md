@@ -194,6 +194,7 @@ The `src/lib/` tree is the calculation engine. UI calls in, never the other way.
 - [ ] Support for other CSV formats (App in the Air, OpenFlights, manual entry).
 - [ ] Lifetime view across all uploaded years.
 - [ ] Anonymous shareable URLs (encoded in hash fragment, no backend).
+- [ ] Move airline SVGs to a separate Github repo that I can pull from for Overhead and this site
 
 ## Maybe never
 

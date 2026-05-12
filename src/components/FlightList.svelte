@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { AVAILABLE_AIRLINE_LOGOS } from "~/lib/airlines/available.ts";
   import { type EnrichedFlight, icaoToIata } from "~/lib/index.ts";
 
   interface Props {
@@ -61,21 +62,10 @@
           aria-label="{f.flight.from} to {f.flight.actualTo} on {f.date.toDateString()}"
         >
           <div class="airline" title={iata}>
-            {#if iata}
-              <img
-                class="airline-logo"
-                src="/airlines/{iata}.svg"
-                alt=""
-                loading="lazy"
-                onerror={(e) => {
-                  const img = e.currentTarget as HTMLImageElement;
-                  img.style.display = "none";
-                  (img.nextElementSibling as HTMLElement | null)?.style.setProperty("display", "inline");
-                }}
-              />
-              <span class="airline-fallback" style="display:none">{iata}</span>
+            {#if iata && AVAILABLE_AIRLINE_LOGOS.has(iata)}
+              <img class="airline-logo" src="/airlines/{iata}.svg" alt="" loading="lazy" />
             {:else}
-              <span class="airline-fallback">??</span>
+              <span class="airline-fallback">{iata || "??"}</span>
             {/if}
           </div>
           <div class="midcol">

@@ -26,11 +26,11 @@ export interface LoadAllUrls {
   gaiaCountries?: string;
 }
 
-let inflight: Promise<void> | null = null;
+let cached: Promise<void> | null = null;
 
 export function loadAllReferenceData(urls: LoadAllUrls = {}): Promise<void> {
-  if (inflight) return inflight;
-  inflight = (async () => {
+  if (cached) return cached;
+  cached = (async () => {
     try {
       await Promise.all([
         loadAirports(urls.airports),
@@ -42,9 +42,10 @@ export function loadAllReferenceData(urls: LoadAllUrls = {}): Promise<void> {
         }),
         loadGaia(urls.gaiaAirports, urls.gaiaCountries),
       ]);
-    } finally {
-      inflight = null;
+    } catch (err) {
+      cached = null;
+      throw err;
     }
   })();
-  return inflight;
+  return cached;
 }
