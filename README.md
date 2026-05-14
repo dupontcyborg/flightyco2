@@ -1,6 +1,6 @@
 # flightyco2
 
-An honest flight-emissions calculator for users of [Flighty](https://flightyapp.com).
+A simple flight-emissions calculator for users of [Flighty](https://flightyapp.com).
 
 Upload your Flighty CSV export, get a per-year and per-flight breakdown of your carbon footprint computed with Google's Travel Impact Model and DEFRA 2024 factors. All processing happens client-side - the CSV never leaves your browser.
 
