@@ -21,6 +21,14 @@
   }
   let { flight, options, rfi, onClose }: Props = $props();
 
+  // Mirror the Distance card's unit preference. localStorage is the
+  // single source of truth so this modal stays in sync without prop drilling.
+  const distanceUnit: "km" | "mi" =
+    typeof localStorage !== "undefined" && localStorage.getItem("flightyco2-distance-unit") === "mi"
+      ? "mi"
+      : "km";
+  const distanceFactor = distanceUnit === "mi" ? 0.621371 : 1;
+
   const iata = $derived(icaoToIata(flight.flight.airline) ?? flight.flight.airline ?? "");
   const dateLabel = (d: Date) =>
     d.toLocaleDateString("en-US", {
@@ -101,7 +109,7 @@
     </div>
     <div class="fact">
       <div class="ft-eyebrow">Distance</div>
-      <div class="fact-val ft-num">{Math.round(flight.distanceKm).toLocaleString()} km</div>
+      <div class="fact-val ft-num">{Math.round(flight.distanceKm * distanceFactor).toLocaleString()} {distanceUnit}</div>
     </div>
     <div class="fact">
       <div class="ft-eyebrow">Cabin</div>

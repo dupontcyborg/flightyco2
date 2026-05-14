@@ -5,9 +5,11 @@
   interface Props {
     flights: EnrichedFlight[];
     rfi: boolean;
+    distanceUnit?: "km" | "mi";
+    distanceFactor?: number;
     onPick?: (f: EnrichedFlight) => void;
   }
-  let { flights, rfi, onPick }: Props = $props();
+  let { flights, rfi, distanceUnit = "km", distanceFactor = 1, onPick }: Props = $props();
 
   type Sort = "date" | "emissions";
   let sort: Sort = $state("emissions");
@@ -78,7 +80,7 @@
               <span class="iata">{f.flight.actualTo}</span>
             </div>
           </div>
-          <div class="km ft-mono">{Math.round(f.distanceKm).toLocaleString()} km</div>
+          <div class="km ft-mono">{Math.round(f.distanceKm * distanceFactor).toLocaleString()} {distanceUnit}</div>
           <div class="kg ft-rounded ft-num">
             {(kg(f) / 1000).toFixed(2)}<span class="kg-unit">t</span>
           </div>

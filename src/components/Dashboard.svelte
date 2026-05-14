@@ -68,18 +68,37 @@
   // re-target `duration` so navigation feels snappy.
   const tHeadline = createTween(() => headlineT, { firstDuration: 900 });
   const tParis = createTween(() => parisMult, { firstDuration: 850, delay: 80 });
-  const tDistance = createTween(() => scopeView.totalDistanceKm / 1000, {
-    firstDuration: 850,
-    delay: 160,
-  });
+  const tDistance = createTween(
+    () => (scopeView.totalDistanceKm / 1000) * distanceFactor,
+    { firstDuration: 850, delay: 160 },
+  );
   const tCoverage = createTween(() => coverage.pct * 100, {
     firstDuration: 850,
     delay: 240,
   });
-  const tDriving = createTween(() => headlineKg / REFERENCE_BUDGETS.carPerKm / 1000, {
-    firstDuration: 900,
-    delay: 80,
-  });
+  const tDriving = createTween(
+    () => (headlineKg / REFERENCE_BUDGETS.carPerKm / 1000) * distanceFactor,
+    { firstDuration: 900, delay: 80 },
+  );
+
+  // Distance unit toggle (km ↔ mi) — persisted across sessions. Click the
+  // Distance card to flip.
+  const KM_TO_MI = 0.621371;
+  const STORAGE_KEY_UNIT = "flightyco2-distance-unit";
+  let distanceUnit: "km" | "mi" = $state(
+    typeof localStorage !== "undefined" && localStorage.getItem(STORAGE_KEY_UNIT) === "mi"
+      ? "mi"
+      : "km",
+  );
+  function toggleDistanceUnit() {
+    distanceUnit = distanceUnit === "km" ? "mi" : "km";
+    try {
+      localStorage.setItem(STORAGE_KEY_UNIT, distanceUnit);
+    } catch {
+      /* ignored */
+    }
+  }
+  const distanceFactor = $derived(distanceUnit === "mi" ? KM_TO_MI : 1);
 </script>
 
 <main class="dash">
@@ -124,22 +143,26 @@
       <div class="ft-rounded ft-num stat-num" class:over={parisMult > 1}>
         {tParis.value.toFixed(1)}<span class="stat-unit">×</span>
       </div>
-      <div class="stat-foot">
-        {scope === null ? "per-year " : ""}1.5°C-aligned individual budget
-      </div>
+      <div class="stat-foot">of your annual 1.5°C budget</div>
     </div>
 
-    <div class="stat stat-distance">
+    <button
+      class="stat stat-distance"
+      type="button"
+      onclick={toggleDistanceUnit}
+      aria-label="Toggle distance unit (currently {distanceUnit})"
+      title="Click to switch units"
+    >
       <div class="ft-eyebrow">DISTANCE</div>
       <div class="ft-rounded ft-num stat-num">
-        {tDistance.value.toFixed(1)}<span class="stat-unit">k km</span>
+        {tDistance.value.toFixed(1)}<span class="stat-unit">k {distanceUnit}</span>
       </div>
       <div class="stat-foot">
-        ≈ driving {tDriving.value.toFixed(0)}k km
+        ≈ driving {tDriving.value.toFixed(0)}k {distanceUnit}
       </div>
-    </div>
+    </button>
 
-    <div class="stat">
+    <div class="stat stat-methodology">
       <div class="ft-eyebrow">METHODOLOGY</div>
       <div class="ft-rounded ft-num stat-num">
         {Math.round(tCoverage.value)}<span class="stat-unit">% TIM</span>
@@ -154,7 +177,13 @@
     </div>
   </div>
 
-  <FlightList flights={scopeView.flights} {rfi} onPick={onPickFlight} />
+  <FlightList
+    flights={scopeView.flights}
+    {rfi}
+    {distanceUnit}
+    {distanceFactor}
+    onPick={onPickFlight}
+  />
 
   <div class="below">
     <div class="ft-card">
@@ -228,11 +257,44 @@
     gap: 12px;
     margin-bottom: 16px;
   }
+  /*
+   * All stat cards share a 3-row flex column: eyebrow pinned top,
+   * number in the middle, footer pinned bottom. The headline card sets
+   * the row height (tallest number); the smaller cards now distribute
+   * their content the same way instead of bunching at the top.
+   */
   .stat {
     padding: 18px 20px;
     background: var(--color-card);
     border: 1px solid var(--color-line);
     border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+  }
+  .stat > .ft-eyebrow,
+  .stat > .eyebrow-light {
+    margin-bottom: auto;
+  }
+  .stat > .stat-num,
+  .stat > .headline-num {
+    margin: 0;
+  }
+  .stat > .stat-foot,
+  .stat > .headline-sub {
+    margin-top: auto;
+    padding-top: 10px;
+  }
+  button.stat {
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    align-items: stretch;
+    transition: border-color 120ms, background 120ms;
+  }
+  button.stat:hover {
+    border-color: var(--color-text3);
+    background: var(--color-card2);
   }
   .stat.headline {
     background: linear-gradient(160deg, #0b1d59 0%, #1844c2 60%, #2f6ff0 100%);
@@ -324,7 +386,6 @@
   }
   .actable .ac-aircraft {
     color: var(--color-text);
-    font-weight: 600;
     text-align: left;
     white-space: nowrap;
     width: 100%;
@@ -332,14 +393,12 @@
   .actable .ac-num {
     text-align: right;
     color: var(--color-text);
-    font-weight: 600;
     white-space: nowrap;
   }
   .ac-unit {
     font-size: 11px;
     color: var(--color-text3);
     margin-left: 2px;
-    font-weight: 600;
   }
   .empty {
     color: var(--color-text3);
@@ -363,7 +422,8 @@
       flex-direction: column;
       align-items: flex-start;
     }
-    .stat-distance {
+    .stat-distance,
+    .stat-methodology {
       display: none;
     }
     .ac-distance {
