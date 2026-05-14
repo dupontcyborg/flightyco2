@@ -12,15 +12,15 @@
     type CabinClass,
   } from "~/lib/index.ts";
   import { ASSETS } from "~/lib/asset-manifest.ts";
-  import { fade, fly } from "svelte/transition";
-  import { cubicOut } from "svelte/easing";
+  import { fade } from "svelte/transition";
   import Upload from "./Upload.svelte";
   import Crunching from "./Crunching.svelte";
   import Dashboard from "./Dashboard.svelte";
   import TopBar from "./TopBar.svelte";
   import Footer from "./Footer.svelte";
-  import MethodologyModal from "./MethodologyModal.svelte";
-  import HowToModal from "./HowToModal.svelte";
+  import FlightDetailModal from "./FlightDetailModal.svelte";
+  import type { Component } from "svelte";
+  import type { EnrichedFlight } from "~/lib/index.ts";
 
   type ModalKind = "methodology" | "howto" | null;
   type Screen = "upload" | "crunching" | "dashboard";
@@ -51,6 +51,7 @@
   // SSR renders with the prop-supplied initial state (Crunching for
   // /report) so there's no flash before client-side restore kicks in.
   let screen: Screen = $state(initialScreen === "restoring" ? "crunching" : "upload");
+
   let bundle: ProcessedBundle | null = $state(null);
   let csvText: string | null = $state(null);
   let rfi: boolean = $state(true);
@@ -58,6 +59,28 @@
   let cabinFallback: CabinClass = $state("economy");
   let loadError: string | null = $state(null);
   let modal: ModalKind = $state(null);
+  let selectedFlight: EnrichedFlight | null = $state(null);
+
+  /*
+   * The two static modals are lazy-imported so each ships as its own chunk
+   * with its scoped CSS attached. This sidesteps a Vite quirk where CSS for
+   * components only rendered inside `{#if}` branches is sometimes missed
+   * by the extractor, and as a bonus keeps their markup out of the main
+   * bundle until the user actually opens them.
+   */
+  type ModalCmp = Component<{ onClose: () => void }>;
+  let methodologyCmp: ModalCmp | null = $state(null);
+  let howtoCmp: ModalCmp | null = $state(null);
+
+  async function openModal(kind: "methodology" | "howto") {
+    if (kind === "methodology" && !methodologyCmp) {
+      methodologyCmp = (await import("./MethodologyModal.svelte")).default as ModalCmp;
+    }
+    if (kind === "howto" && !howtoCmp) {
+      howtoCmp = (await import("./HowToModal.svelte")).default as ModalCmp;
+    }
+    modal = kind;
+  }
 
   const SAMPLE_URL = "/sample/canonical-fixture.csv";
   const STORAGE_KEY = "flightyco2-csv";
@@ -102,6 +125,25 @@
       if (!isReport && screen === "dashboard") reset();
     };
     window.addEventListener("popstate", onPop);
+
+    // Warm the lazy modal chunks in idle time so the first open is instant.
+    const idle = (cb: () => void) =>
+      "requestIdleCallback" in window
+        ? (window as Window & typeof globalThis).requestIdleCallback(cb)
+        : setTimeout(cb, 200);
+    idle(() => {
+      if (!methodologyCmp) {
+        import("./MethodologyModal.svelte").then((m) => {
+          methodologyCmp = m.default as ModalCmp;
+        });
+      }
+      if (!howtoCmp) {
+        import("./HowToModal.svelte").then((m) => {
+          howtoCmp = m.default as ModalCmp;
+        });
+      }
+    });
+
     return () => window.removeEventListener("popstate", onPop);
   });
 
@@ -201,7 +243,7 @@
 <div class="ft-app">
   <TopBar
     onReset={screen === "dashboard" ? reset : undefined}
-    onOpenModal={(k) => (modal = k)}
+    onOpenModal={(k) => openModal(k)}
   />
 
   <div class="stage">
@@ -213,26 +255,40 @@
       <div class="screen" transition:fade={{ duration: 180 }}>
         <Crunching />
       </div>
-    {:else if bundle && scopeView}
-      <div class="screen" in:fly={{ y: 20, duration: 340, easing: cubicOut, delay: 60 }}>
-        <Dashboard
-          {bundle}
-          {scopeView}
-          {cabinFallback}
-          onChangeCabinFallback={changeCabinFallback}
-          bind:rfi
-          bind:scope
-        />
+    {:else if screen === "dashboard"}
+      <div class="screen">
+        {#if bundle && scopeView}
+          <Dashboard
+            {bundle}
+            {scopeView}
+            {cabinFallback}
+            onChangeCabinFallback={changeCabinFallback}
+            onPickFlight={(f) => (selectedFlight = f)}
+            bind:rfi
+            bind:scope
+          />
+        {/if}
       </div>
     {/if}
   </div>
 
   <Footer />
 
-  {#if modal === "methodology"}
-    <MethodologyModal onClose={() => (modal = null)} />
-  {:else if modal === "howto"}
-    <HowToModal onClose={() => (modal = null)} />
+  {#if modal === "methodology" && methodologyCmp}
+    {@const Cmp = methodologyCmp}
+    <Cmp onClose={() => (modal = null)} />
+  {:else if modal === "howto" && howtoCmp}
+    {@const Cmp = howtoCmp}
+    <Cmp onClose={() => (modal = null)} />
+  {/if}
+
+  {#if selectedFlight && bundle}
+    <FlightDetailModal
+      flight={selectedFlight}
+      options={bundle.options}
+      {rfi}
+      onClose={() => (selectedFlight = null)}
+    />
   {/if}
 </div>
 

@@ -30,15 +30,6 @@
   const dateLabelShort = (d: Date) =>
     d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "2-digit", timeZone: "UTC" });
 
-  // Heavy = top decile in this dataset.
-  const heavyThreshold = $derived.by(() => {
-    if (flights.length === 0) return Infinity;
-    const sortedKg = flights
-      .map((f) => (rfi ? f.result.kgCo2e : f.result.kgCo2))
-      .sort((a, b) => b - a);
-    return sortedKg[Math.floor(sortedKg.length * 0.1)] ?? Infinity;
-  });
-
   function kg(f: EnrichedFlight): number {
     return rfi ? f.result.kgCo2e : f.result.kgCo2;
   }
@@ -88,7 +79,7 @@
             </div>
           </div>
           <div class="km ft-mono">{Math.round(f.distanceKm).toLocaleString()} km</div>
-          <div class="kg ft-rounded ft-num" class:heavy={kg(f) >= heavyThreshold}>
+          <div class="kg ft-rounded ft-num">
             {(kg(f) / 1000).toFixed(2)}<span class="kg-unit">t</span>
           </div>
         </button>
@@ -219,9 +210,6 @@
     font-size: 22px;
     font-weight: 700;
     text-align: right;
-  }
-  .kg.heavy {
-    color: var(--color-warn);
   }
   .kg-unit {
     font-size: 11px;

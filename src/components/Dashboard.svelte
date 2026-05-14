@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { REFERENCE_BUDGETS, type CabinClass } from "~/lib/index.ts";
+  import { REFERENCE_BUDGETS, type CabinClass, type EnrichedFlight } from "~/lib/index.ts";
   import type { ProcessedBundle, ScopeKey, ScopeView } from "~/lib/app/process.ts";
   import { createTween } from "~/lib/app/tween.svelte.ts";
   import YearStrip from "./YearStrip.svelte";
@@ -13,6 +13,7 @@
     scopeView: ScopeView;
     cabinFallback: CabinClass;
     onChangeCabinFallback: (next: CabinClass) => void;
+    onPickFlight?: (f: EnrichedFlight) => void;
     rfi: boolean;
     scope: ScopeKey;
   }
@@ -21,6 +22,7 @@
     scopeView,
     cabinFallback,
     onChangeCabinFallback,
+    onPickFlight,
     rfi = $bindable(),
     scope = $bindable(),
   }: Props = $props();
@@ -104,7 +106,7 @@
 
   <div class="stat-grid">
     <div class="stat headline">
-      <div class="ft-eyebrow eyebrow-light">TOTAL EMISSIONS{scope === null ? " · LIFETIME" : ""}</div>
+      <div class="ft-eyebrow eyebrow-light">TOTAL EMISSIONS · {scope === null ? "LIFETIME" : scope}</div>
       <div class="ft-rounded ft-num headline-num">
         {tHeadline.value.toFixed(1)}<span class="unit">t&nbsp;CO₂e</span>
       </div>
@@ -152,7 +154,7 @@
     </div>
   </div>
 
-  <FlightList flights={scopeView.flights} {rfi} />
+  <FlightList flights={scopeView.flights} {rfi} onPick={onPickFlight} />
 
   <div class="below">
     <div class="ft-card">

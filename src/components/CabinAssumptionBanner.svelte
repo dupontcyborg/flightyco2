@@ -96,4 +96,30 @@
     overflow: hidden;
     clip: rect(0 0 0 0);
   }
+
+  @media (max-width: 540px) {
+    .banner {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      column-gap: 10px;
+      row-gap: 10px;
+      padding: 12px 14px;
+    }
+    .dot {
+      grid-column: 1;
+      grid-row: 1;
+      align-self: center;
+    }
+    .copy {
+      grid-column: 2;
+      grid-row: 1;
+    }
+    .picker {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+    .picker select {
+      width: 100%;
+    }
+  }
 </style>
