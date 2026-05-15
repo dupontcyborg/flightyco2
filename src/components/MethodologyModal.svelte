@@ -92,6 +92,18 @@
     </ul>
   </section>
 
+  <section class="privacy">
+    <div class="ft-eyebrow">Your data</div>
+    <p>
+      Your CSV is parsed and computed entirely in your browser. It is never
+      uploaded, never logged, never seen by us or anyone else. Results are
+      cached in your browser's local storage so re-opening the page is
+      instant; clear your site data to remove everything. The site uses
+      <a href="https://plausible.io/privacy-focused-web-analytics" target="_blank" rel="noreferrer">Plausible</a>
+      for aggregate, cookie-less page analytics — no personal data, no tracking.
+    </p>
+  </section>
+
   <footer class="modal-foot">
     Full calculator source on
     <a href="https://github.com/dupontcyborg/flightyco2" target="_blank" rel="noreferrer">GitHub</a>
@@ -162,6 +174,23 @@
     text-decoration: none;
   }
   .sources a:hover { text-decoration: underline; }
+
+  .privacy {
+    padding-top: 18px;
+    border-top: 1px solid var(--color-line);
+    margin-top: 18px;
+  }
+  .privacy p {
+    font-size: 13px;
+    color: var(--color-text2);
+    line-height: 1.7;
+    margin: 8px 0 0;
+  }
+  .privacy a {
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+  .privacy a:hover { text-decoration: underline; }
 
   .modal-foot {
     margin-top: 18px;

@@ -27,6 +27,11 @@
   const visible = $derived(sorted.slice(0, limit));
   const remaining = $derived(Math.max(0, sorted.length - visible.length));
 
+  // "premium economy" is the only cabin label long enough to push the meta
+  // row onto a second line on narrow screens. Render a short form on mobile
+  // (CSS toggles which span is shown).
+  const shortCabin = (c: string) => (c.toLowerCase().startsWith("premium") ? "premium" : c);
+
   const dateLabel = (d: Date) =>
     d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
   const dateLabelShort = (d: Date) =>
@@ -72,7 +77,8 @@
               <span class="dot ac-dot">·</span>
               <span class="ac">{f.flight.aircraft ?? "unknown aircraft"}</span>
               <span class="dot">·</span>
-              <span class="cab">{f.result.cabinClass}{f.result.cabinSource === "fallback" ? "*" : ""}</span>
+              <span class="cab cab-long">{f.result.cabinClass}{f.result.cabinSource === "fallback" ? "*" : ""}</span>
+              <span class="cab cab-short">{shortCabin(f.result.cabinClass)}{f.result.cabinSource === "fallback" ? "*" : ""}</span>
             </div>
             <div class="route ft-rounded">
               <span class="iata">{f.flight.from}</span>
@@ -181,6 +187,9 @@
   .date-short {
     display: none;
   }
+  .cab-short {
+    display: none;
+  }
   .flightno {
     font-weight: 700;
     color: var(--color-text);
@@ -246,10 +255,12 @@
     }
     .date-long,
     .ac,
-    .ac-dot {
+    .ac-dot,
+    .cab-long {
       display: none;
     }
-    .date-short {
+    .date-short,
+    .cab-short {
       display: inline;
     }
     .kg {

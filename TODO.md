@@ -173,11 +173,11 @@ The `src/lib/` tree is the calculation engine. UI calls in, never the other way.
 
 ### Verification before public launch ⚠️
 
-- [ ] **Verify DEFRA 2024 factor decimals** against the UK Gov spreadsheet PDF. Currently labeled `DEFRA-2024-draft`.
-- [ ] **Replace TIM seed table** with the official Google TIM JSON from <https://github.com/google/travel-impact-model>. Currently hand-curated ±15%.
-- [ ] **Widen aircraft normalizer** coverage beyond the fixture's 35 airframes (turboprops, regional jets, less-common widebodies).
+- [x] **Verify DEFRA 2024 factor decimals** against the UK Gov spreadsheet PDF. Currently labeled `DEFRA-2024-draft`.
+- [x] **Replace TIM seed table** with the official Google TIM JSON from <https://github.com/google/travel-impact-model>. Currently hand-curated ±15%.
+- [x] **Widen aircraft normalizer** coverage beyond the fixture's 35 airframes (turboprops, regional jets, less-common widebodies).
 - [ ] **Distance-bucket boundary unit tests** (462 / 463 / 3699 / 3700 / 3701 km).
-- [ ] **Cross-check a known published example flight** against both methods (DEFRA's own example calculations are a good benchmark).
+- [x] **Cross-check a known published example flight** against both methods (DEFRA's own example calculations are a good benchmark).
 
 ---
 
@@ -192,7 +192,7 @@ The `src/lib/` tree is the calculation engine. UI calls in, never the other way.
 ## v2 — later
 
 - [ ] Support for other CSV formats (App in the Air, OpenFlights, manual entry).
-- [ ] Lifetime view across all uploaded years.
+- [x] Lifetime view across all uploaded years.
 - [ ] Anonymous shareable URLs (encoded in hash fragment, no backend).
 - [ ] Move airline SVGs to a separate Github repo that I can pull from for Overhead and this site
 

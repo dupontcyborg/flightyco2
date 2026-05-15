@@ -39,6 +39,16 @@ const ogImage = new URL("/og.png", Astro.site).toString();
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
+
+    {/* Plausible analytics, proxied through the shared CloudFront distribution
+        so privacy-focused adblockers don't drop the script or /api/event POSTs.
+        Queue shim lets us call window.plausible(...) before the script loads. */}
+    <script is:inline>
+      window.plausible = window.plausible || function () {
+        (window.plausible.q = window.plausible.q || []).push(arguments);
+      };
+    </script>
+    <script defer data-domain="flightyco2.com" src="https://d1w0psmo3bkh8z.cloudfront.net/js/script.js" is:inline></script>
   </head>
   <body>
     <slot />

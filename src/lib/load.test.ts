@@ -1,12 +1,15 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { aircraftMappingLoaded } from "./aircraft/data.ts";
-import { fuelBurnLoaded } from "./aircraft/fuel-burn.ts";
-import { seatConfigsLoaded } from "./aircraft/seat-config.ts";
-import { airportsLoaded } from "./airports/data.ts";
-import { gaiaLoaded } from "./gaia/data.ts";
-import { loadAllReferenceData } from "./load.ts";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+// load.ts and its child loaders keep module-level promise caches. Reset
+// the module graph between tests so each test gets a fresh `cached` /
+// `inflight` and exercises real fetch behavior.
+async function freshLoadModule() {
+  vi.resetModules();
+  return await import("./load.ts");
+}
 
 afterEach(() => vi.restoreAllMocks());
+beforeEach(() => vi.resetModules());
 
 function mockAll(): void {
   vi.stubGlobal(
@@ -18,6 +21,7 @@ function mockAll(): void {
       if (url.includes("gaia-airports")) return json({});
       if (url.includes("gaia-countries")) return json({});
       if (url.includes("/airports.")) return json({ JFK: [40.6398, -73.7789, "KJFK", "US"] });
+      if (url.includes("/airlines.")) return json({});
       if (url.includes("aircraft-mapping"))
         return json({
           version: "test",
@@ -37,8 +41,15 @@ function mockAll(): void {
 }
 
 describe("loadAllReferenceData", () => {
-  it("loads all 6 sources in parallel and marks every store as loaded", async () => {
+  it("loads every source and marks every store as loaded", async () => {
     mockAll();
+    const { loadAllReferenceData } = await freshLoadModule();
+    const { airportsLoaded } = await import("./airports/data.ts");
+    const { aircraftMappingLoaded } = await import("./aircraft/data.ts");
+    const { fuelBurnLoaded } = await import("./aircraft/fuel-burn.ts");
+    const { seatConfigsLoaded } = await import("./aircraft/seat-config.ts");
+    const { gaiaLoaded } = await import("./gaia/data.ts");
+
     await loadAllReferenceData();
     expect(airportsLoaded()).toBe(true);
     expect(aircraftMappingLoaded()).toBe(true);
@@ -47,15 +58,15 @@ describe("loadAllReferenceData", () => {
     expect(gaiaLoaded()).toBe(true);
   });
 
-  it("can be called more than once; second call is essentially a no-op", async () => {
+  it("caches the result — second call does not re-fetch", async () => {
     mockAll();
+    const { loadAllReferenceData } = await freshLoadModule();
     await loadAllReferenceData();
-    const before = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls.length;
+    const after1 = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls.length;
+    expect(after1).toBeGreaterThan(0);
     await loadAllReferenceData();
-    // Either no new fetches (good caching) or it re-runs — both acceptable
-    // since the stores are already populated. Just verify it doesn't throw.
-    expect(airportsLoaded()).toBe(true);
-    expect(before).toBeGreaterThan(0);
+    const after2 = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls.length;
+    expect(after2).toBe(after1);
   });
 
   it("propagates errors when any source fails", async () => {
@@ -63,6 +74,7 @@ describe("loadAllReferenceData", () => {
       "fetch",
       vi.fn().mockResolvedValue({ ok: false, status: 500, statusText: "Server Error" }),
     );
+    const { loadAllReferenceData } = await freshLoadModule();
     await expect(loadAllReferenceData()).rejects.toThrow(/500/);
   });
 });
