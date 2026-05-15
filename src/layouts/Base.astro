@@ -3,9 +3,16 @@ import "~/styles/global.css";
 
 interface Props {
   title?: string;
+  description?: string;
 }
 
-const { title = "FlightyCO2 - Flight Carbon Footprint" } = Astro.props;
+const {
+  title = "flightyco2 — Your Flighty history, in tons of CO₂",
+  description = "Drop your Flighty CSV and see the CO₂ footprint of your travel history, including non-CO₂ warming effects. Computed locally with Google's Travel Impact Model and DEFRA 2024 — your data never leaves your browser.",
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).toString();
+const ogImage = new URL("/og.png", Astro.site).toString();
 ---
 
 <!doctype html>
@@ -13,8 +20,25 @@ const { title = "FlightyCO2 - Flight Carbon Footprint" } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#0a0a0c" />
     <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="flightyco2" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
   </head>
   <body>
     <slot />

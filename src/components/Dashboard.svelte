@@ -109,8 +109,8 @@
       <h1 class="ft-rounded headline-title">{title}</h1>
     </div>
     <div class="ft-toggle" role="group" aria-label="Non-CO2 effects">
-      <button class:on={rfi} onclick={() => (rfi = true)}>Non-CO₂ on</button>
       <button class:on={!rfi} onclick={() => (rfi = false)}>CO₂ only</button>
+      <button class:on={rfi} onclick={() => (rfi = true)}>Total warming</button>
     </div>
   </header>
 

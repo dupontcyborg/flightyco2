@@ -88,10 +88,10 @@ The `src/lib/` tree is the calculation engine. UI calls in, never the other way.
 
 ### CSV processing extensions
 
-- [ ] **Codeshare / double-booking dedupe.** Heuristic key: `(date, from, to, scheduled_dep_time)`. Add a tally of deduped flights so it's visible, never silent.
-- [ ] **Diverted-flight handling.** When `Diverted To` is set, use that as the actual arrival airport for distance calculation. Currently we'd compute distance to the scheduled destination.
-- [ ] **Malformed / empty / non-Flighty CSV error states.** Distinguish "wrong file format" from "valid CSV with bad rows" in the UI.
-- [ ] **Canonical anonymized test CSV.** Derive a small public fixture from nicolas's Flighty export — *same flights, smaller subset, adjusted* so private travel patterns aren't exposed. Engineer the subset to hit every edge case in one file:
+- [x] **Codeshare / double-booking dedupe.** Heuristic key: `(date, from, to, scheduled_dep_time)`. Add a tally of deduped flights so it's visible, never silent.
+- [x] **Diverted-flight handling.** When `Diverted To` is set, use that as the actual arrival airport for distance calculation. Currently we'd compute distance to the scheduled destination.
+- [x] **Malformed / empty / non-Flighty CSV error states.** Distinguish "wrong file format" from "valid CSV with bad rows" in the UI.
+- [x] **Canonical anonymized test CSV.** Derive a small public fixture from nicolas's Flighty export — *same flights, smaller subset, adjusted* so private travel patterns aren't exposed. Engineer the subset to hit every edge case in one file:
   - Each cabin class (economy / premium-economy / business / first) at least once, plus a row with no cabin recorded
   - Each common haul-length bucket (domestic short, short-haul, long-haul transatlantic, long-haul transpacific)
   - Several aircraft families incl. one that exercises substring fallback (e.g. `Boeing 737-900ER` → `737-900`) and one alias hit (e.g. `Bombardier CRJ900`)
@@ -101,73 +101,73 @@ The `src/lib/` tree is the calculation engine. UI calls in, never the other way.
   - A non-Flighty / malformed line to test error states
   - Sanitize dates (e.g. shift by N years or randomize), drop or redact `Notes`/`PNR`/`Seat`/`Tail Number` columns
   Should live at `sample_data/fixture.csv` and be committed (the `FlightyExport-*` originals stay gitignored).
-- [ ] **Other synthetic fixtures** if useful: a huge CSV for perf testing, a corrupt CSV for error-state UI.
+- [x] **Other synthetic fixtures** if useful: a huge CSV for perf testing, a corrupt CSV for error-state UI.
 
 ### Aggregation (between calc and UI)
 
-- [ ] **Per-year aggregation** — totals, flight count, distance, by-cabin and by-aircraft splits.
-- [ ] **Monthly breakdown** with haul-length bucketing for the stacked bar chart.
-- [ ] **By-aircraft and by-cabin breakdowns** (counts + emissions share).
-- [ ] **Top-N highest-emission flights** for the year selector.
-- [ ] **Data-quality summary** ("94% of flights had complete data") + cabin-class found/missing split.
+- [x] **Per-year aggregation** — totals, flight count, distance, by-cabin and by-aircraft splits.
+- [x] **Monthly breakdown** with haul-length bucketing for the stacked bar chart.
+- [x] **By-aircraft and by-cabin breakdowns** (counts + emissions share).
+- [x] **Top-N highest-emission flights** for the year selector.
+- [x] **Data-quality summary** ("94% of flights had complete data") + cabin-class found/missing split.
 
 ### Cabin-class fallback toggle (logic + UI)
 
-- [ ] Toggle state lives in a Svelte store; applies only to flights with `cabinClass === null`.
-- [ ] Show count split prominently ("142 with recorded cabin, 232 assumed").
-- [ ] Headline number updates live when toggled — show the delta visibly.
-- [ ] Persist toggle state alongside the localStorage-cached result.
-- [ ] Surface long-haul caveat copy contextually based on the user's haul mix.
+- [x] Toggle state lives in a Svelte store; applies only to flights with `cabinClass === null`.
+- [x] Show count split prominently ("142 with recorded cabin, 232 assumed").
+- [x] Headline number updates live when toggled — show the delta visibly.
+- [x] Persist toggle state alongside the localStorage-cached result.
+- [x] Surface long-haul caveat copy contextually based on the user's haul mix.
 
 ### UI — landing & upload
 
-- [ ] **Landing page** — one-sentence pitch, one CTA, privacy claim above the fold.
-- [ ] **Inline Flighty CSV export instructions** with screenshots.
-- [ ] **Svelte uploader island** — drag/drop + file picker, client-side validation, progress for large files.
-- [ ] **Loading state** for parsing + calculation on large CSVs.
+- [x] **Landing page** — one-sentence pitch, one CTA, privacy claim above the fold.
+- [x] **Inline Flighty CSV export instructions** with screenshots.
+- [x] **Svelte uploader island** — drag/drop + file picker, client-side validation, progress for large files.
+- [x] **Loading state** for parsing + calculation on large CSVs.
 
 ### UI — results
 
-- [ ] **Results route** (`/results`) with year selector defaulting to most recent complete year.
-- [ ] **Headline tons CO₂e** for selected year.
-- [ ] **Comparisons** — vs avg American (~16 t/yr), vs 1.5°C-aligned individual budget (~2 t/yr), vs equivalent km driven.
-- [ ] **Monthly stacked bar chart** (D3, color-coded by haul length).
-- [ ] **By-aircraft and by-cabin breakdown** components.
-- [ ] **Top-5 highest-emission flights** list with route, date, kgCO₂e.
-- [ ] **Data quality badge** with breakdown drawer.
-- [ ] **Methodology drawer** — one-line summary always visible, full breakdown one click away. Toggles for non-CO₂ multiplier and DEFRA / TIM.
+- [x] **Results route** (`/results`) with year selector defaulting to most recent complete year.
+- [x] **Headline tons CO₂e** for selected year.
+- [x] **Comparisons** — vs avg American (~16 t/yr), vs 1.5°C-aligned individual budget (~2 t/yr), vs equivalent km driven.
+- [x] **Monthly stacked bar chart** (D3, color-coded by haul length).
+- [x] **By-aircraft and by-cabin breakdown** components.
+- [x] **Top-5 highest-emission flights** list with route, date, kgCO₂e.
+- [x] **Data quality badge** with breakdown drawer.
+- [x] **Methodology drawer** — one-line summary always visible, full breakdown one click away. Toggles for non-CO₂ multiplier and DEFRA / TIM.
 
 ### UI — per-flight detail
 
-- [ ] **Detail view** — route, date, aircraft, cabin, distance, kg CO₂e (with and without non-CO₂ multiplier, both shown).
-- [ ] Per-flight data-quality indicator + caveats (`aircraft type inferred`, `cabin assumed`, etc.).
-- [ ] **"What if?" sliders** — cabin class, aircraft type, direct vs connecting; updates per-flight estimate live.
+- [x] **Detail view** — route, date, aircraft, cabin, distance, kg CO₂e (with and without non-CO₂ multiplier, both shown).
+- [x] Per-flight data-quality indicator + caveats (`aircraft type inferred`, `cabin assumed`, etc.).
+- [x] **"What if?" sliders** — cabin class, aircraft type, direct vs connecting; updates per-flight estimate live.
 
 ### Persistence
 
-- [ ] **localStorage cache** keyed by CSV hash. Re-uploading same file returns instantly.
-- [ ] Cache schema includes `factorVersion` so old results stay stable when factors are updated.
-- [ ] Cabin-fallback toggle and methodology toggles persisted in the same cache entry.
+- [x] **localStorage cache** keyed by CSV hash. Re-uploading same file returns instantly.
+- [x] Cache schema includes `factorVersion` so old results stay stable when factors are updated.
+- [x] Cabin-fallback toggle and methodology toggles persisted in the same cache entry.
 
 ### Methodology transparency
 
-- [ ] **`/methodology` page** — full calculation in plain language, formulas, factor sources, version, known limitations.
-- [ ] **"What's not counted"** section: tech stops, ferry flights, manufacturing emissions, airport ground ops.
-- [ ] Citations to DEFRA, ICAO, Google TIM, Lee et al. 2021.
-- [ ] `methodology_version` surfaced in UI and stored alongside each calculation.
+- [x] **`/methodology` page** — full calculation in plain language, formulas, factor sources, version, known limitations.
+- [x] **"What's not counted"** section: tech stops, ferry flights, manufacturing emissions, airport ground ops.
+- [x] Citations to DEFRA, ICAO, Google TIM, Lee et al. 2021.
+- [x] `methodology_version` surfaced in UI and stored alongside each calculation.
 
 ### Non-functional / launch readiness
 
-- [ ] **Privacy copy** on landing page; verifiable in DevTools Network tab (no requests carry CSV data).
-- [ ] **Performance:** TTI < 1s on fast connection; 1,000-flight CSV processed in < 2s on mid-range laptop.
-- [ ] **Bundle budget:** < 200 KB JS gzipped on first load. Measure and gate.
+- [x] **Privacy copy** on landing page; verifiable in DevTools Network tab (no requests carry CSV data).
+- [x] **Performance:** TTI < 1s on fast connection; 1,000-flight CSV processed in < 2s on mid-range laptop.
+- [x] **Bundle budget:** < 200 KB JS gzipped on first load. Measure and gate.
 - [ ] **Accessibility:** WCAG AA. Keyboard navigation. Charts have text alternatives.
 - [ ] **Cross-browser smoke test:** latest Chrome / Safari / Firefox / Edge + mobile Safari + Chrome Android.
 
 ### Repo hygiene
 
 - [ ] **README** — what, why, how to run locally, methodology pointers.
-- [ ] **MIT LICENSE.**
+- [x] **MIT LICENSE.**
 - [ ] **CONTRIBUTING** note (small) covering methodology contributions specifically.
 - [ ] Privacy-respecting page-level analytics (Plausible or similar), opt-out friendly.
 
@@ -183,7 +183,7 @@ The `src/lib/` tree is the calculation engine. UI calls in, never the other way.
 
 ## v1.1 — next
 
-- [ ] **Airline logos in flight list**. Port `overhead/assets/*.svg` (80 brand marks, IATA-named, ~50 KB total) into `src/assets/airlines/` (or `public/airlines/`). Render next to the IATA flight number via `?raw` inline or `<img>`. Fall back to text when no asset for the IATA.
+- [X] **Airline logos in flight list**. Port `overhead/assets/*.svg` (80 brand marks, IATA-named, ~50 KB total) into `src/assets/airlines/` (or `public/airlines/`). Render next to the IATA flight number via `?raw` inline or `<img>`. Fall back to text when no asset for the IATA.
 - [ ] **Share card** (PNG export of summary, austere "receipt" aesthetic, no Wrapped-y badges).
 - [ ] Per-route stage-length adjustment in TIM (short-haul less efficient than long-haul for same airframe).
 - [ ] Full TIM JSON dataset with route-bucketed lookups, not just airframe-level averages.

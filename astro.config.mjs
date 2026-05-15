@@ -3,6 +3,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 
 export default defineConfig({
+  site: "https://flightyco2.com",
   integrations: [svelte({ emitCss: true })],
   vite: {
     plugins: [tailwindcss()],

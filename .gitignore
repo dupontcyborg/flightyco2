@@ -17,3 +17,6 @@ data/wikipedia/
 public/*.[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].json
 
 design/
+
+# OG image fonts (downloaded on first build by scripts/build-og.ts)
+scripts/og/fonts/
