@@ -62,8 +62,8 @@ export {
   type ParseResult,
   parseFlightyCsv,
 } from "./csv/index.ts";
-export { CABIN_CLASSES } from "./csv/schema.ts";
 export type { CabinClass, DataQuality, ParsedFlight } from "./csv/schema.ts";
+export { CABIN_CLASSES } from "./csv/schema.ts";
 // Emissions calculators
 export {
   calculateDefra,

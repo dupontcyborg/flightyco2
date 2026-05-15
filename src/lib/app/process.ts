@@ -6,6 +6,7 @@
  * renders from. Kept out of any Svelte component so it stays testable.
  */
 
+import { ASSETS } from "~/lib/asset-manifest.ts";
 import {
   aggregateByAircraft,
   aggregateByCabin,
@@ -25,7 +26,6 @@ import {
   summarizeEnrichedQuality,
   topNFlights,
 } from "~/lib/index.ts";
-import { ASSETS } from "~/lib/asset-manifest.ts";
 
 export interface ProcessedBundle {
   parse: ParseResult;
@@ -92,7 +92,7 @@ function logImportDebug(parse: ParseResult, enrichment: EnrichmentResult): void 
   const reasonCounts = new Map<string, number>();
   for (const u of enrichment.unresolved) {
     const m = /unknown airport\(s\): (\S+) or (\S+)/.exec(u.reason);
-    if (m && m[1] && m[2]) {
+    if (m?.[1] && m[2]) {
       unknownAirports.add(m[1]);
       unknownAirports.add(m[2]);
     } else {

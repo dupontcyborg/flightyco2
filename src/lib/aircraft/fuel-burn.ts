@@ -49,6 +49,9 @@ export function fuelBurnVersion(): string | null {
 export function interpolateCcdFuel(entry: AircraftFuelBurn, ccdNm: number): number | null {
   const pts = entry.ccd;
   if (pts.length === 0) return null;
+  // biome-ignore-start lint/style/noNonNullAssertion: every index access below is
+  // bounded by the length guards above (length≥1 after the first return, length≥2
+  // inside the loop and extrapolation blocks).
   if (pts.length === 1) return pts[0]![1];
 
   // Find bracketing points
@@ -68,4 +71,5 @@ export function interpolateCcdFuel(entry: AircraftFuelBurn, ccdNm: number): numb
   const [x0, y0] = pts[pts.length - 2]!;
   const [x1, y1] = pts[pts.length - 1]!;
   return y0 + ((ccdNm - x0) * (y1 - y0)) / (x1 - x0);
+  // biome-ignore-end lint/style/noNonNullAssertion: see start
 }

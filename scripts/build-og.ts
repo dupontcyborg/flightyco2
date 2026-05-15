@@ -11,8 +11,8 @@
  * Idempotent. Runs as part of `npm run prebuild`.
  */
 
-import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
-import { resolve, dirname } from "node:path";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Resvg } from "@resvg/resvg-js";
 import satori from "satori";
@@ -76,10 +76,7 @@ const CONTRAIL_SVG = `
 </svg>
 `.trim();
 
-const WORDMARK_SVG = readFileSync(
-  resolve(root, "src", "assets", "logo-wordmark.svg"),
-  "utf8",
-);
+const WORDMARK_SVG = readFileSync(resolve(root, "src", "assets", "logo-wordmark.svg"), "utf8");
 
 function svgDataUrl(svg: string): string {
   return `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;

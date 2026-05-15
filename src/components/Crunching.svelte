@@ -1,7 +1,7 @@
 <script lang="ts">
-  // Subtle moment-of-attention between upload and dashboard. Brief by
-  // design — long enough to register that something happened, short enough
-  // that the dashboard reveal still feels instant.
+// Subtle moment-of-attention between upload and dashboard. Brief by
+// design — long enough to register that something happened, short enough
+// that the dashboard reveal still feels instant.
 </script>
 
 <main class="crunching">

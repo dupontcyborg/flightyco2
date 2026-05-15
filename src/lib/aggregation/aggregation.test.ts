@@ -2,7 +2,6 @@ import { readFileSync } from "node:fs";
 import { beforeEach, describe, expect, it } from "vitest";
 import { parseFlightyCsv } from "../csv/parse.ts";
 import type { CabinClass, ParsedFlight } from "../csv/schema.ts";
-import { calculateDefra } from "../emissions/defra.ts";
 import { calculateTim } from "../emissions/tim.ts";
 import {
   DEFAULT_EMISSION_OPTIONS,

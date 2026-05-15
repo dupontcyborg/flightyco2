@@ -1,10 +1,10 @@
 <script lang="ts">
-  import Modal from "./Modal.svelte";
+import Modal from "./Modal.svelte";
 
-  interface Props {
-    onClose: () => void;
-  }
-  let { onClose }: Props = $props();
+interface Props {
+  onClose: () => void;
+}
+let { onClose }: Props = $props();
 </script>
 
 <Modal {onClose}>

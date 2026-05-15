@@ -29,7 +29,7 @@ export function createTween(
     const step = (now: number) => {
       const elapsed = Math.max(0, now - startTime);
       const p = Math.min(1, elapsed / dur);
-      const eased = 1 - Math.pow(1 - p, 3); // cubicOut
+      const eased = 1 - (1 - p) ** 3; // cubicOut
       displayed = start + (t - start) * eased;
       if (p < 1) raf = requestAnimationFrame(step);
     };

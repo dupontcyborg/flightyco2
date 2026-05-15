@@ -1,104 +1,102 @@
 <script lang="ts">
-  import { REFERENCE_BUDGETS, type CabinClass, type EnrichedFlight } from "~/lib/index.ts";
-  import type { ProcessedBundle, ScopeKey, ScopeView } from "~/lib/app/process.ts";
-  import { createTween } from "~/lib/app/tween.svelte.ts";
-  import YearStrip from "./YearStrip.svelte";
-  import CabinAssumptionBanner from "./CabinAssumptionBanner.svelte";
-  import MonthlyBars from "./MonthlyBars.svelte";
-  import YearBars from "./YearBars.svelte";
-  import FlightList from "./FlightList.svelte";
+import type { ProcessedBundle, ScopeKey, ScopeView } from "~/lib/app/process.ts";
+import { createTween } from "~/lib/app/tween.svelte.ts";
+import { type CabinClass, type EnrichedFlight, REFERENCE_BUDGETS } from "~/lib/index.ts";
+import CabinAssumptionBanner from "./CabinAssumptionBanner.svelte";
+import FlightList from "./FlightList.svelte";
+import MonthlyBars from "./MonthlyBars.svelte";
+import YearBars from "./YearBars.svelte";
+import YearStrip from "./YearStrip.svelte";
 
-  interface Props {
-    bundle: ProcessedBundle;
-    scopeView: ScopeView;
-    cabinFallback: CabinClass;
-    onChangeCabinFallback: (next: CabinClass) => void;
-    onPickFlight?: (f: EnrichedFlight) => void;
-    rfi: boolean;
-    scope: ScopeKey;
+interface Props {
+  bundle: ProcessedBundle;
+  scopeView: ScopeView;
+  cabinFallback: CabinClass;
+  onChangeCabinFallback: (next: CabinClass) => void;
+  onPickFlight?: (f: EnrichedFlight) => void;
+  rfi: boolean;
+  scope: ScopeKey;
+}
+let {
+  bundle,
+  scopeView,
+  cabinFallback,
+  onChangeCabinFallback,
+  onPickFlight,
+  rfi = $bindable(),
+  scope = $bindable(),
+}: Props = $props();
+
+const knownAircraft = $derived(scopeView.byAircraft.filter((a) => a.aircraft !== "(unknown)"));
+
+// RFI-live headline.
+const headlineKg = $derived.by(() => {
+  let sum = 0;
+  for (const f of scopeView.flights) sum += rfi ? f.result.kgCo2e : f.result.kgCo2;
+  return sum;
+});
+const headlineT = $derived(headlineKg / 1000);
+
+// Per-year Paris budget multiple — divides by the year span so lifetime
+// and single-year views stay directly comparable.
+const parisMult = $derived(headlineKg / (REFERENCE_BUDGETS.paris15AnnualKg * scopeView.yearSpan));
+
+// Coverage = share of flights where TIM ran successfully (no DEFRA fallback).
+// That's the most honest "trust this number" signal: TIM is per-aircraft,
+// DEFRA is a per-passenger-km estimate. The cabin-assumption banner
+// covers the orthogonal cabin-coverage concern.
+const coverage = $derived.by(() => {
+  let tim = 0;
+  let defra = 0;
+  let assumed = 0;
+  for (const f of scopeView.flights) {
+    if (f.result.method === "TIM-2024") tim++;
+    else defra++;
+    if (f.result.cabinSource === "fallback") assumed++;
   }
-  let {
-    bundle,
-    scopeView,
-    cabinFallback,
-    onChangeCabinFallback,
-    onPickFlight,
-    rfi = $bindable(),
-    scope = $bindable(),
-  }: Props = $props();
+  const total = scopeView.flights.length;
+  return { tim, defra, assumed, total, pct: total > 0 ? tim / total : 0 };
+});
 
-  const knownAircraft = $derived(scopeView.byAircraft.filter((a) => a.aircraft !== "(unknown)"));
+const title = $derived(scope === null ? "Your flying, all-time" : "Your year in the air");
 
-  // RFI-live headline.
-  const headlineKg = $derived.by(() => {
-    let sum = 0;
-    for (const f of scopeView.flights) sum += rfi ? f.result.kgCo2e : f.result.kgCo2;
-    return sum;
-  });
-  const headlineT = $derived(headlineKg / 1000);
+// Coordinated tween of the four top stat cards. Initial mount uses
+// `firstDuration` with a small per-card delay so the row "cascades" into
+// place; subsequent changes (year switch, RFI toggle) use the shorter
+// re-target `duration` so navigation feels snappy.
+const tHeadline = createTween(() => headlineT, { firstDuration: 900 });
+const tParis = createTween(() => parisMult, { firstDuration: 850, delay: 80 });
+const tDistance = createTween(() => (scopeView.totalDistanceKm / 1000) * distanceFactor, {
+  firstDuration: 850,
+  delay: 160,
+});
+const tCoverage = createTween(() => coverage.pct * 100, {
+  firstDuration: 850,
+  delay: 240,
+});
+const tDriving = createTween(
+  () => (headlineKg / REFERENCE_BUDGETS.carPerKm / 1000) * distanceFactor,
+  { firstDuration: 900, delay: 80 },
+);
 
-  // Per-year Paris budget multiple — divides by the year span so lifetime
-  // and single-year views stay directly comparable.
-  const parisMult = $derived(
-    headlineKg / (REFERENCE_BUDGETS.paris15AnnualKg * scopeView.yearSpan),
-  );
-
-  // Coverage = share of flights where TIM ran successfully (no DEFRA fallback).
-  // That's the most honest "trust this number" signal: TIM is per-aircraft,
-  // DEFRA is a per-passenger-km estimate. The cabin-assumption banner
-  // covers the orthogonal cabin-coverage concern.
-  const coverage = $derived.by(() => {
-    let tim = 0;
-    let defra = 0;
-    let assumed = 0;
-    for (const f of scopeView.flights) {
-      if (f.result.method === "TIM-2024") tim++;
-      else defra++;
-      if (f.result.cabinSource === "fallback") assumed++;
-    }
-    const total = scopeView.flights.length;
-    return { tim, defra, assumed, total, pct: total > 0 ? tim / total : 0 };
-  });
-
-  const title = $derived(scope === null ? "Your flying, all-time" : "Your year in the air");
-
-  // Coordinated tween of the four top stat cards. Initial mount uses
-  // `firstDuration` with a small per-card delay so the row "cascades" into
-  // place; subsequent changes (year switch, RFI toggle) use the shorter
-  // re-target `duration` so navigation feels snappy.
-  const tHeadline = createTween(() => headlineT, { firstDuration: 900 });
-  const tParis = createTween(() => parisMult, { firstDuration: 850, delay: 80 });
-  const tDistance = createTween(
-    () => (scopeView.totalDistanceKm / 1000) * distanceFactor,
-    { firstDuration: 850, delay: 160 },
-  );
-  const tCoverage = createTween(() => coverage.pct * 100, {
-    firstDuration: 850,
-    delay: 240,
-  });
-  const tDriving = createTween(
-    () => (headlineKg / REFERENCE_BUDGETS.carPerKm / 1000) * distanceFactor,
-    { firstDuration: 900, delay: 80 },
-  );
-
-  // Distance unit toggle (km ↔ mi) — persisted across sessions. Click the
-  // Distance card to flip.
-  const KM_TO_MI = 0.621371;
-  const STORAGE_KEY_UNIT = "flightyco2-distance-unit";
-  let distanceUnit: "km" | "mi" = $state(
-    typeof localStorage !== "undefined" && localStorage.getItem(STORAGE_KEY_UNIT) === "mi"
-      ? "mi"
-      : "km",
-  );
-  function toggleDistanceUnit() {
-    distanceUnit = distanceUnit === "km" ? "mi" : "km";
-    try {
-      localStorage.setItem(STORAGE_KEY_UNIT, distanceUnit);
-    } catch {
-      /* ignored */
-    }
+// Distance unit toggle (km ↔ mi) — persisted across sessions. Click the
+// Distance card to flip.
+const KM_TO_MI = 0.621371;
+const STORAGE_KEY_UNIT = "flightyco2-distance-unit";
+let distanceUnit: "km" | "mi" = $state(
+  typeof localStorage !== "undefined" && localStorage.getItem(STORAGE_KEY_UNIT) === "mi"
+    ? "mi"
+    : "km",
+);
+function toggleDistanceUnit() {
+  distanceUnit = distanceUnit === "km" ? "mi" : "km";
+  try {
+    localStorage.setItem(STORAGE_KEY_UNIT, distanceUnit);
+  } catch {
+    /* ignored */
   }
-  const distanceFactor = $derived(distanceUnit === "mi" ? KM_TO_MI : 1);
+}
+const distanceFactor = $derived(distanceUnit === "mi" ? KM_TO_MI : 1);
 </script>
 
 <main class="dash">
@@ -422,7 +420,9 @@
       flex-direction: column;
       align-items: flex-start;
     }
-    .stat-distance,
+    /* Keep three cards visible on mobile: headline (span 2), Paris budget,
+       distance. The TIM-coverage card is the lowest-signal of the four, so
+       it's the one that drops. */
     .stat-methodology {
       display: none;
     }

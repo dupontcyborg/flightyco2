@@ -1,33 +1,33 @@
 <script lang="ts">
-  interface Props {
-    loadSample: () => Promise<void>;
-    handleFile: (file: File) => Promise<void>;
-    loading: boolean;
-    error: string | null;
-  }
-  let { loadSample, handleFile, loading, error }: Props = $props();
+interface Props {
+  loadSample: () => Promise<void>;
+  handleFile: (file: File) => Promise<void>;
+  loading: boolean;
+  error: string | null;
+}
+let { loadSample, handleFile, loading, error }: Props = $props();
 
-  let fileInput: HTMLInputElement | undefined = $state();
-  let dragging = $state(false);
+let fileInput: HTMLInputElement | undefined = $state();
+let dragging = $state(false);
 
-  function onChange(e: Event) {
-    const target = e.target as HTMLInputElement;
-    const file = target.files?.[0];
-    if (file) void handleFile(file);
-  }
+function onChange(e: Event) {
+  const target = e.target as HTMLInputElement;
+  const file = target.files?.[0];
+  if (file) void handleFile(file);
+}
 
-  function onDrop(e: DragEvent) {
-    e.preventDefault();
-    dragging = false;
-    const file = e.dataTransfer?.files?.[0];
-    if (file) void handleFile(file);
-  }
+function onDrop(e: DragEvent) {
+  e.preventDefault();
+  dragging = false;
+  const file = e.dataTransfer?.files?.[0];
+  if (file) void handleFile(file);
+}
 
-  // Dev-only globe toggle: ?globe=on shows the placeholder globe; default is no globe.
-  const showGlobe = $derived(
-    typeof window !== "undefined" &&
-      new URLSearchParams(window.location.search).get("globe") === "on",
-  );
+// Dev-only globe toggle: ?globe=on shows the placeholder globe; default is no globe.
+const showGlobe = $derived(
+  typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("globe") === "on",
+);
 </script>
 
 <main class="ft-upload">

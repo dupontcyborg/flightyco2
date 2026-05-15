@@ -1,13 +1,13 @@
 <script lang="ts">
-  import logoWordmark from "../assets/logo-wordmark.svg?raw";
+import logoWordmark from "../assets/logo-wordmark.svg?raw";
 
-  type ModalKind = "methodology" | "howto";
+type ModalKind = "methodology" | "howto";
 
-  interface Props {
-    onReset?: () => void;
-    onOpenModal: (kind: ModalKind) => void;
-  }
-  let { onReset, onOpenModal }: Props = $props();
+interface Props {
+  onReset?: () => void;
+  onOpenModal: (kind: ModalKind) => void;
+}
+let { onReset, onOpenModal }: Props = $props();
 </script>
 
 <header class="ft-bar">

@@ -1,24 +1,24 @@
 <script lang="ts">
-  import type { EnrichedFlight } from "~/lib/index.ts";
+import type { EnrichedFlight } from "~/lib/index.ts";
 
-  interface Props {
-    flights: EnrichedFlight[];
-    rfi: boolean;
+interface Props {
+  flights: EnrichedFlight[];
+  rfi: boolean;
+}
+let { flights, rfi }: Props = $props();
+
+const byYear = $derived.by(() => {
+  const map = new Map<number, { kg: number; count: number }>();
+  for (const f of flights) {
+    const v = rfi ? f.result.kgCo2e : f.result.kgCo2;
+    const cur = map.get(f.year) ?? { kg: 0, count: 0 };
+    cur.kg += v;
+    cur.count += 1;
+    map.set(f.year, cur);
   }
-  let { flights, rfi }: Props = $props();
-
-  const byYear = $derived.by(() => {
-    const map = new Map<number, { kg: number; count: number }>();
-    for (const f of flights) {
-      const v = rfi ? f.result.kgCo2e : f.result.kgCo2;
-      const cur = map.get(f.year) ?? { kg: 0, count: 0 };
-      cur.kg += v;
-      cur.count += 1;
-      map.set(f.year, cur);
-    }
-    return [...map.entries()].sort((a, b) => a[0] - b[0]);
-  });
-  const max = $derived(Math.max(...byYear.map(([, v]) => v.kg), 1));
+  return [...map.entries()].sort((a, b) => a[0] - b[0]);
+});
+const max = $derived(Math.max(...byYear.map(([, v]) => v.kg), 1));
 </script>
 
 <div class="bars">

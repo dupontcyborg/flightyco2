@@ -1,27 +1,56 @@
 <script lang="ts">
-  import type { EnrichedFlight } from "~/lib/index.ts";
+import type { EnrichedFlight } from "~/lib/index.ts";
 
-  interface Props {
-    flights: EnrichedFlight[];
-    /** Whether to use kgCo2e (RFI applied) or kgCo2 (CO2 only). */
-    rfi: boolean;
+interface Props {
+  flights: EnrichedFlight[];
+  /** Whether to use kgCo2e (RFI applied) or kgCo2 (CO2 only). */
+  rfi: boolean;
+}
+let { flights, rfi }: Props = $props();
+
+const MONTH_LABELS = [
+  "JAN",
+  "FEB",
+  "MAR",
+  "APR",
+  "MAY",
+  "JUN",
+  "JUL",
+  "AUG",
+  "SEP",
+  "OCT",
+  "NOV",
+  "DEC",
+];
+const MONTH_FULL = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+const monthly = $derived.by(() => {
+  const arr: { kg: number; count: number }[] = Array.from({ length: 12 }, () => ({
+    kg: 0,
+    count: 0,
+  }));
+  for (const f of flights) {
+    const slot = arr[f.month - 1];
+    if (!slot) continue;
+    slot.kg += rfi ? f.result.kgCo2e : f.result.kgCo2;
+    slot.count += 1;
   }
-  let { flights, rfi }: Props = $props();
-
-  const MONTH_LABELS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-  const MONTH_FULL = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
-  const monthly = $derived.by(() => {
-    const arr: { kg: number; count: number }[] = Array.from({ length: 12 }, () => ({ kg: 0, count: 0 }));
-    for (const f of flights) {
-      const slot = arr[f.month - 1];
-      if (!slot) continue;
-      slot.kg += rfi ? f.result.kgCo2e : f.result.kgCo2;
-      slot.count += 1;
-    }
-    return arr;
-  });
-  const max = $derived(Math.max(...monthly.map((m) => m.kg), 1));
+  return arr;
+});
+const max = $derived(Math.max(...monthly.map((m) => m.kg), 1));
 </script>
 
 <div class="bars-wrap">

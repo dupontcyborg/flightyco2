@@ -18,7 +18,8 @@ export function prefetchAirlineLogos(icaoCodes: Iterable<string | null | undefin
 
   const seen = new Set<string>();
   for (const icao of icaoCodes) {
-    const iata = icaoToIata(icao) ?? (icao && /^[A-Z0-9]{2}$/i.test(icao) ? icao.toUpperCase() : null);
+    const iata =
+      icaoToIata(icao) ?? (icao && /^[A-Z0-9]{2}$/i.test(icao) ? icao.toUpperCase() : null);
     if (!iata || seen.has(iata)) continue;
     seen.add(iata);
     if (!AVAILABLE_AIRLINE_LOGOS.has(iata)) continue;

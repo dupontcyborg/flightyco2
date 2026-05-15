@@ -1,45 +1,57 @@
 <script lang="ts">
-  import { AVAILABLE_AIRLINE_LOGOS } from "~/lib/airlines/available.ts";
-  import { type EnrichedFlight, icaoToIata } from "~/lib/index.ts";
+import { AVAILABLE_AIRLINE_LOGOS } from "~/lib/airlines/available.ts";
+import { type EnrichedFlight, icaoToIata } from "~/lib/index.ts";
 
-  interface Props {
-    flights: EnrichedFlight[];
-    rfi: boolean;
-    distanceUnit?: "km" | "mi";
-    distanceFactor?: number;
-    onPick?: (f: EnrichedFlight) => void;
+interface Props {
+  flights: EnrichedFlight[];
+  rfi: boolean;
+  distanceUnit?: "km" | "mi";
+  distanceFactor?: number;
+  onPick?: (f: EnrichedFlight) => void;
+}
+let { flights, rfi, distanceUnit = "km", distanceFactor = 1, onPick }: Props = $props();
+
+type Sort = "date" | "emissions";
+let sort: Sort = $state("emissions");
+let limit: number = $state(10);
+
+const sorted = $derived.by(() => {
+  const list = [...flights];
+  if (sort === "emissions") {
+    list.sort((a, b) =>
+      rfi ? b.result.kgCo2e - a.result.kgCo2e : b.result.kgCo2 - a.result.kgCo2,
+    );
+  } else {
+    list.sort((a, b) => b.date.getTime() - a.date.getTime());
   }
-  let { flights, rfi, distanceUnit = "km", distanceFactor = 1, onPick }: Props = $props();
+  return list;
+});
+const visible = $derived(sorted.slice(0, limit));
+const remaining = $derived(Math.max(0, sorted.length - visible.length));
 
-  type Sort = "date" | "emissions";
-  let sort: Sort = $state("emissions");
-  let limit: number = $state(10);
+// "premium economy" is the only cabin label long enough to push the meta
+// row onto a second line on narrow screens. Render a short form on mobile
+// (CSS toggles which span is shown).
+const shortCabin = (c: string) => (c.toLowerCase().startsWith("premium") ? "premium" : c);
 
-  const sorted = $derived.by(() => {
-    const list = [...flights];
-    if (sort === "emissions") {
-      list.sort((a, b) => (rfi ? b.result.kgCo2e - a.result.kgCo2e : b.result.kgCo2 - a.result.kgCo2));
-    } else {
-      list.sort((a, b) => b.date.getTime() - a.date.getTime());
-    }
-    return list;
+const dateLabel = (d: Date) =>
+  d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
   });
-  const visible = $derived(sorted.slice(0, limit));
-  const remaining = $derived(Math.max(0, sorted.length - visible.length));
+const dateLabelShort = (d: Date) =>
+  d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "2-digit",
+    timeZone: "UTC",
+  });
 
-  // "premium economy" is the only cabin label long enough to push the meta
-  // row onto a second line on narrow screens. Render a short form on mobile
-  // (CSS toggles which span is shown).
-  const shortCabin = (c: string) => (c.toLowerCase().startsWith("premium") ? "premium" : c);
-
-  const dateLabel = (d: Date) =>
-    d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
-  const dateLabelShort = (d: Date) =>
-    d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "2-digit", timeZone: "UTC" });
-
-  function kg(f: EnrichedFlight): number {
-    return rfi ? f.result.kgCo2e : f.result.kgCo2;
-  }
+function kg(f: EnrichedFlight): number {
+  return rfi ? f.result.kgCo2e : f.result.kgCo2;
+}
 </script>
 
 <div class="ft-card list-card">

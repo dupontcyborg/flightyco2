@@ -1,27 +1,27 @@
 <script lang="ts">
-  import type { Snippet } from "svelte";
-  import { fade, fly } from "svelte/transition";
-  import { cubicOut } from "svelte/easing";
+import type { Snippet } from "svelte";
+import { cubicOut } from "svelte/easing";
+import { fade, fly } from "svelte/transition";
 
-  interface Props {
-    onClose: () => void;
-    children: Snippet;
-  }
-  let { onClose, children }: Props = $props();
+interface Props {
+  onClose: () => void;
+  children: Snippet;
+}
+let { onClose, children }: Props = $props();
 
-  function onKey(e: KeyboardEvent) {
-    if (e.key === "Escape") onClose();
-  }
+function onKey(e: KeyboardEvent) {
+  if (e.key === "Escape") onClose();
+}
 
-  $effect(() => {
-    window.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
-  });
+$effect(() => {
+  window.addEventListener("keydown", onKey);
+  const prev = document.body.style.overflow;
+  document.body.style.overflow = "hidden";
+  return () => {
+    window.removeEventListener("keydown", onKey);
+    document.body.style.overflow = prev;
+  };
+});
 </script>
 
 <div

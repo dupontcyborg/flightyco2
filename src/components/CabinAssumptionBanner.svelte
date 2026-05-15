@@ -1,27 +1,27 @@
 <script lang="ts">
-  import type { CabinClass } from "~/lib/index.ts";
+import type { CabinClass } from "~/lib/index.ts";
 
-  interface Props {
-    assumedCount: number;
-    totalCount: number;
-    cabinFallback: CabinClass;
-    onChange: (next: CabinClass) => void;
-  }
-  let { assumedCount, totalCount, cabinFallback, onChange }: Props = $props();
+interface Props {
+  assumedCount: number;
+  totalCount: number;
+  cabinFallback: CabinClass;
+  onChange: (next: CabinClass) => void;
+}
+let { assumedCount, totalCount, cabinFallback, onChange }: Props = $props();
 
-  // Order in the dropdown matches how a user thinks about it (cheapest to
-  // priciest, the natural increasing-emission gradient).
-  const ORDER: CabinClass[] = ["economy", "premium-economy", "business", "first"];
+// Order in the dropdown matches how a user thinks about it (cheapest to
+// priciest, the natural increasing-emission gradient).
+const ORDER: CabinClass[] = ["economy", "premium-economy", "business", "first"];
 
-  const LABEL: Record<CabinClass, string> = {
-    economy: "Economy",
-    "premium-economy": "Premium Economy",
-    business: "Business",
-    first: "First",
-  };
+const LABEL: Record<CabinClass, string> = {
+  economy: "Economy",
+  "premium-economy": "Premium Economy",
+  business: "Business",
+  first: "First",
+};
 
-  // If lots of flights are assumed, the choice matters more — visually elevate.
-  const heavy = $derived(totalCount > 0 && assumedCount / totalCount > 0.25);
+// If lots of flights are assumed, the choice matters more — visually elevate.
+const heavy = $derived(totalCount > 0 && assumedCount / totalCount > 0.25);
 </script>
 
 <div class="banner" class:heavy>

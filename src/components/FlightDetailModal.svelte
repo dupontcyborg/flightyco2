@@ -1,77 +1,77 @@
 <script lang="ts">
-  import {
-    calculateDefra,
-    calculateTim,
-    CABIN_CLASSES,
-    type CabinClass,
-    type EmissionInput,
-    type EmissionOptions,
-    type EmissionResult,
-    type EnrichedFlight,
-    icaoToIata,
-  } from "~/lib/index.ts";
-  import { AVAILABLE_AIRLINE_LOGOS } from "~/lib/airlines/available.ts";
-  import Modal from "./Modal.svelte";
+import { AVAILABLE_AIRLINE_LOGOS } from "~/lib/airlines/available.ts";
+import {
+  CABIN_CLASSES,
+  type CabinClass,
+  calculateDefra,
+  calculateTim,
+  type EmissionInput,
+  type EmissionOptions,
+  type EmissionResult,
+  type EnrichedFlight,
+  icaoToIata,
+} from "~/lib/index.ts";
+import Modal from "./Modal.svelte";
 
-  interface Props {
-    flight: EnrichedFlight;
-    options: EmissionOptions;
-    rfi: boolean;
-    onClose: () => void;
-  }
-  let { flight, options, rfi, onClose }: Props = $props();
+interface Props {
+  flight: EnrichedFlight;
+  options: EmissionOptions;
+  rfi: boolean;
+  onClose: () => void;
+}
+let { flight, options, rfi, onClose }: Props = $props();
 
-  // Mirror the Distance card's unit preference. localStorage is the
-  // single source of truth so this modal stays in sync without prop drilling.
-  const distanceUnit: "km" | "mi" =
-    typeof localStorage !== "undefined" && localStorage.getItem("flightyco2-distance-unit") === "mi"
-      ? "mi"
-      : "km";
-  const distanceFactor = distanceUnit === "mi" ? 0.621371 : 1;
+// Mirror the Distance card's unit preference. localStorage is the
+// single source of truth so this modal stays in sync without prop drilling.
+const distanceUnit: "km" | "mi" =
+  typeof localStorage !== "undefined" && localStorage.getItem("flightyco2-distance-unit") === "mi"
+    ? "mi"
+    : "km";
+const distanceFactor = distanceUnit === "mi" ? 0.621371 : 1;
 
-  const iata = $derived(icaoToIata(flight.flight.airline) ?? flight.flight.airline ?? "");
-  const dateLabel = (d: Date) =>
-    d.toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      timeZone: "UTC",
-    });
-
-  const CABIN_LABEL: Record<CabinClass, string> = {
-    economy: "Economy",
-    "premium-economy": "Premium Economy",
-    business: "Business",
-    first: "First",
-  };
-
-  const calculator = $derived(flight.result.method === "TIM-2024" ? calculateTim : calculateDefra);
-
-  // Re-run the same calculator with each cabin class for the comparison strip.
-  const variants = $derived.by(() => {
-    const baseInput: EmissionInput = {
-      distanceKm: flight.distanceKm,
-      cabinClass: flight.flight.cabinClass,
-      aircraft: flight.flight.aircraft,
-      aircraftId: flight.flight.aircraftId,
-      fromIcao: undefined,
-      toIcao: undefined,
-      fromCountry: undefined,
-      toCountry: undefined,
-    };
-    return CABIN_CLASSES.map((c) => {
-      const r: EmissionResult = calculator({ ...baseInput, cabinClass: c }, options);
-      return { cabin: c, result: r };
-    });
+const iata = $derived(icaoToIata(flight.flight.airline) ?? flight.flight.airline ?? "");
+const dateLabel = (d: Date) =>
+  d.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
   });
 
-  function fmt(kg: number): string {
-    return (kg / 1000).toFixed(2);
-  }
-  function val(r: EmissionResult): number {
-    return rfi ? r.kgCo2e : r.kgCo2;
-  }
+const CABIN_LABEL: Record<CabinClass, string> = {
+  economy: "Economy",
+  "premium-economy": "Premium Economy",
+  business: "Business",
+  first: "First",
+};
+
+const calculator = $derived(flight.result.method === "TIM-2024" ? calculateTim : calculateDefra);
+
+// Re-run the same calculator with each cabin class for the comparison strip.
+const variants = $derived.by(() => {
+  const baseInput: EmissionInput = {
+    distanceKm: flight.distanceKm,
+    cabinClass: flight.flight.cabinClass,
+    aircraft: flight.flight.aircraft,
+    aircraftId: flight.flight.aircraftId,
+    fromIcao: undefined,
+    toIcao: undefined,
+    fromCountry: undefined,
+    toCountry: undefined,
+  };
+  return CABIN_CLASSES.map((c) => {
+    const r: EmissionResult = calculator({ ...baseInput, cabinClass: c }, options);
+    return { cabin: c, result: r };
+  });
+});
+
+function fmt(kg: number): string {
+  return (kg / 1000).toFixed(2);
+}
+function val(r: EmissionResult): number {
+  return rfi ? r.kgCo2e : r.kgCo2;
+}
 </script>
 
 <Modal {onClose}>

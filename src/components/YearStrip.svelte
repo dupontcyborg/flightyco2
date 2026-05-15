@@ -1,42 +1,42 @@
 <script lang="ts">
-  import type { ScopeKey } from "~/lib/app/process.ts";
+import type { ScopeKey } from "~/lib/app/process.ts";
 
-  interface Props {
-    years: number[];
-    scope: ScopeKey;
-  }
-  let { years, scope = $bindable() }: Props = $props();
+interface Props {
+  years: number[];
+  scope: ScopeKey;
+}
+let { years, scope = $bindable() }: Props = $props();
 
-  let stripEl: HTMLDivElement;
-  let canScrollLeft = $state(false);
-  let canScrollRight = $state(false);
-  let rafId: number | null = null;
+let stripEl: HTMLDivElement;
+let canScrollLeft = $state(false);
+let canScrollRight = $state(false);
+let rafId: number | null = null;
 
-  function update() {
+function update() {
+  if (!stripEl) return;
+  canScrollLeft = stripEl.scrollLeft > 2;
+  canScrollRight = stripEl.scrollLeft + stripEl.clientWidth < stripEl.scrollWidth - 2;
+}
+
+function startScroll(dir: 1 | -1) {
+  stopScroll();
+  const step = () => {
     if (!stripEl) return;
-    canScrollLeft = stripEl.scrollLeft > 2;
-    canScrollRight = stripEl.scrollLeft + stripEl.clientWidth < stripEl.scrollWidth - 2;
-  }
-
-  function startScroll(dir: 1 | -1) {
-    stopScroll();
-    const step = () => {
-      if (!stripEl) return;
-      stripEl.scrollLeft += dir * 3;
-      update();
-      rafId = requestAnimationFrame(step);
-    };
+    stripEl.scrollLeft += dir * 3;
+    update();
     rafId = requestAnimationFrame(step);
-  }
-  function stopScroll() {
-    if (rafId !== null) cancelAnimationFrame(rafId);
-    rafId = null;
-  }
+  };
+  rafId = requestAnimationFrame(step);
+}
+function stopScroll() {
+  if (rafId !== null) cancelAnimationFrame(rafId);
+  rafId = null;
+}
 
-  $effect(() => {
-    void years;
-    queueMicrotask(update);
-  });
+$effect(() => {
+  void years;
+  queueMicrotask(update);
+});
 </script>
 
 <div class="wrap">
