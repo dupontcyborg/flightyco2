@@ -16,7 +16,7 @@ Full methodology and source list is in the in-app methodology drawer.
 
 ## Stack
 
-- Astro 6 static + Svelte 5 islands + TypeScript 5.9 + Tailwind v4
+- Astro 6 static + Svelte 5 islands + TypeScript 6 + Tailwind v4
 - Biome + Vitest + PapaParse + Zod
 - Deployed on Cloudflare Pages
 
