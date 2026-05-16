@@ -20,7 +20,7 @@ import { bootstrapTestData, repoPath } from "../test-helpers.ts";
 import { calculateDefra, calculateTim } from "./index.ts";
 import { DEFAULT_EMISSION_OPTIONS, type EmissionInput, type EmissionOptions } from "./types.ts";
 
-const FIXTURE = repoPath("sample_data/FlightyExport-2026-05-10 (2).csv");
+const FIXTURE = repoPath("sample_data/personal-export.csv");
 const HAVE_FIXTURE = existsSync(FIXTURE);
 
 // Skip the whole file when the personal fixture isn't present (e.g. fresh
@@ -50,9 +50,11 @@ function buildInput(f: ReturnType<typeof loadFixture>[number]): EmissionInput | 
 
 describeIfFixture("Lifetime totals (cabin fallback = economy, RF = 1.9×)", () => {
   const opts: EmissionOptions = DEFAULT_EMISSION_OPTIONS;
-  const flights = loadFixture();
+  // Lazy: vitest's describe.skip still executes the body to collect names,
+  // so deferring loadFixture() into each it() avoids the read.
 
   it("DEFRA total locked at ~186.68 t", () => {
+    const flights = loadFixture();
     let total = 0;
     let count = 0;
     for (const f of flights) {
@@ -67,6 +69,7 @@ describeIfFixture("Lifetime totals (cabin fallback = economy, RF = 1.9×)", () =
   });
 
   it("TIM total locked at ~175.07 t", () => {
+    const flights = loadFixture();
     let total = 0;
     let count = 0;
     let fellBack = 0;
@@ -85,6 +88,7 @@ describeIfFixture("Lifetime totals (cabin fallback = economy, RF = 1.9×)", () =
   });
 
   it("TIM is 5-7% lower than DEFRA (TIM is more refined; DEFRA is conservative)", () => {
+    const flights = loadFixture();
     let defraTotal = 0;
     let timTotal = 0;
     for (const f of flights) {
@@ -101,9 +105,11 @@ describeIfFixture("Lifetime totals (cabin fallback = economy, RF = 1.9×)", () =
 });
 
 describeIfFixture("Aircraft mapping coverage on fixture", () => {
-  const flights = loadFixture();
+  // Lazy: vitest's describe.skip still executes the body to collect names,
+  // so deferring loadFixture() into each it() avoids the read.
 
   it("hits exact match on ≥85% of flights with aircraft strings", () => {
+    const flights = loadFixture();
     let exact = 0;
     let withAircraft = 0;
     for (const f of flights) {
@@ -117,6 +123,7 @@ describeIfFixture("Aircraft mapping coverage on fixture", () => {
   });
 
   it("100% of flights with aircraft strings resolve (exact or substring)", () => {
+    const flights = loadFixture();
     let unmapped = 0;
     let withAircraft = 0;
     for (const f of flights) {

@@ -1,30 +1,48 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { repoPath } from "../test-helpers.ts";
 import { NotFlightyCsvError, parseFlightyCsv } from "./parse.ts";
 
-const FIXTURE_PATH = repoPath("sample_data/FlightyExport-2026-05-10 (2).csv");
+// The "full fixture" suite locks counts to nicolas's personal Flighty
+// export, which is gitignored. Skip it cleanly when the file isn't present
+// (fresh clone, CI) — the canonical fixture exercises the same code paths
+// in integration.test.ts.
+const FIXTURE_PATH = repoPath("sample_data/personal-export.csv");
+const HAVE_FIXTURE = existsSync(FIXTURE_PATH);
+const describeIfFixture = HAVE_FIXTURE ? describe : describe.skip;
 
-describe("parseFlightyCsv — full fixture", () => {
-  const csv = readFileSync(FIXTURE_PATH, "utf8");
-  const result = parseFlightyCsv(csv);
+// Vitest's describe.skip still *executes the callback* to collect test
+// names, so file reads must be lazy — otherwise the missing-fixture case
+// throws before the skip kicks in. Memoize on first test access.
+let _result: ReturnType<typeof parseFlightyCsv> | null = null;
+function getResult(): ReturnType<typeof parseFlightyCsv> {
+  if (!_result) {
+    _result = parseFlightyCsv(readFileSync(FIXTURE_PATH, "utf8"));
+  }
+  return _result;
+}
 
+describeIfFixture("parseFlightyCsv — full fixture", () => {
   it("parses all 373 rows without skipping", () => {
+    const result = getResult();
     expect(result.flights.length).toBe(373);
     expect(result.skipped).toHaveLength(0);
   });
 
   it("tags 4 flights as cancelled", () => {
+    const result = getResult();
     expect(result.flights.filter((f) => f.cancelled)).toHaveLength(4);
   });
 
   it("uses Flighty UUID as flight id", () => {
+    const result = getResult();
     for (const f of result.flights.slice(0, 5)) {
       expect(f.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
     }
   });
 
   it("data quality histogram matches expectations", () => {
+    const result = getResult();
     const counts = { high: 0, medium: 0, low: 0 };
     for (const f of result.flights) counts[f.quality]++;
     expect(counts.high).toBe(4); // the 4 rows we manually edited cabin on
@@ -32,6 +50,7 @@ describe("parseFlightyCsv — full fixture", () => {
   });
 
   it("cabin class found for exactly the 4 manually-edited rows", () => {
+    const result = getResult();
     const withCabin = result.flights.filter((f) => f.cabinClass !== null);
     expect(withCabin).toHaveLength(4);
     const classes = withCabin.map((f) => f.cabinClass).sort();
@@ -247,7 +266,8 @@ describe("parseFlightyCsv — format sanity check", () => {
     expect(result.skipped).toHaveLength(0);
   });
 
-  it("accepts the real fixture (has all required columns)", () => {
+  const itIfFixture = HAVE_FIXTURE ? it : it.skip;
+  itIfFixture("accepts the real fixture (has all required columns)", () => {
     // sanity — should not throw
     const csv = readFileSync(FIXTURE_PATH, "utf8");
     expect(() => parseFlightyCsv(csv)).not.toThrow();
