@@ -2,15 +2,15 @@
 
 A simple flight-emissions calculator for users of [Flighty](https://flightyapp.com).
 
-Upload your Flighty CSV export, get a per-year and per-flight breakdown of your carbon footprint computed with Google's Travel Impact Model and DEFRA 2024 factors. All processing happens client-side — the CSV never leaves your browser.
+Upload your Flighty CSV export, get a per-year and per-flight breakdown of your carbon footprint computed with Google's Travel Impact Model and DEFRA 2024 factors. All processing happens client-side, the CSV never leaves your browser.
 
 [Try it out here](https://flightyco2.com)!
 
 ## Methodology
 
-- **TIM 3.0.0** — faithful port of Google's [Travel Impact Model](https://github.com/google/travel-impact-model), validated against its published worked example to within 0.07%. Reads per-aircraft EEA fuel-burn curves, route-specific distance adjustments (GAIA), CORSIA well-to-wake conversion, seat-area class allocation.
-- **DEFRA 2024** — UK Gov GHG conversion factors, verified against the published spreadsheet. Used as a transparent fallback when TIM lacks data for a flight (no aircraft string, unmapped ICAO); the per-flight result records which method ran.
-- **Non-CO₂ effects** — 1.9× radiative-forcing uplift on by default, toggleable in the UI.
+- **TIM 3.0.0**: faithful port of Google's [Travel Impact Model](https://github.com/google/travel-impact-model), validated against its published worked example to within 0.07%. Reads per-aircraft EEA fuel-burn curves, route-specific distance adjustments (GAIA), CORSIA well-to-wake conversion, seat-area class allocation.
+- **DEFRA 2024**: UK Gov GHG conversion factors, verified against the published spreadsheet. Used as a transparent fallback when TIM lacks data for a flight (no aircraft string, unmapped ICAO); the per-flight result records which method ran.
+- **Non-CO₂ effects**: 1.9× radiative-forcing uplift on by default, toggleable in the UI.
 
 Full methodology and source list is in the in-app methodology drawer.
 
@@ -35,7 +35,7 @@ npm run build    # Production build
 npm run lint     # Biome
 ```
 
-Tests run on a fresh clone with no private data — the end-to-end regression uses [`sample_data/canonical-fixture.csv`](./sample_data/canonical-fixture.csv).
+Tests run on a fresh clone with no private data. The end-to-end regression uses [`sample_data/canonical-fixture.csv`](./sample_data/canonical-fixture.csv).
 
 Reference data (airports, aircraft, fuel-burn, etc.) is regenerated from upstream sources via `npm run data` (and per-source variants `npm run data:airports`, `data:gaia`, `data:eea`, `data:tim`, `data:defra`, `data:seats`). See [`data/README.md`](./data/README.md) for upstream attribution and licenses.
 
@@ -47,9 +47,9 @@ Reference data (airports, aircraft, fuel-burn, etc.) is regenerated from upstrea
 
 This project was built with substantial use of large language models. Specifically:
 
-- **Architecture and design** — human (me, [@dupontcyborg](https://nico.codes), a senior software engineer).
-- **Implementation** - predominantly LLM-assisted. Most TypeScript, Svelte components, and tests were drafted by my dear friend Claude :)
-- **Review** - me again.
+- Architecture and design: human (me, [@dupontcyborg](https://nico.codes), a senior software engineer).
+- Implementation: predominantly LLM-assisted. Most TypeScript, Svelte components, and tests were drafted by my dear friend Claude :)
+- Review: me again.
 
 Bugs and typos are most likely my own, in all fairness to Claude.
 
