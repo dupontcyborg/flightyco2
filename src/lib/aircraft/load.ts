@@ -23,16 +23,16 @@ let inflight: Promise<void> | null = null;
  *   - EEA fuel-burn curves
  *   - Typical seat configurations
  */
-export function loadAircraftMapping(url: string = DEFAULTS.mapping): Promise<void> {
-  return fetchJson<MappingFile>(url).then(setAircraftMapping);
+export async function loadAircraftMapping(url: string = DEFAULTS.mapping): Promise<void> {
+  setAircraftMapping(await fetchJson<MappingFile>(url));
 }
 
-export function loadFuelBurn(url: string = DEFAULTS.fuelBurn): Promise<void> {
-  return fetchJson<FuelBurnFile>(url).then(setFuelBurn);
+export async function loadFuelBurn(url: string = DEFAULTS.fuelBurn): Promise<void> {
+  setFuelBurn(await fetchJson<FuelBurnFile>(url));
 }
 
-export function loadSeatConfigs(url: string = DEFAULTS.seatConfigs): Promise<void> {
-  return fetchJson<SeatConfigFile>(url).then(setSeatConfigs);
+export async function loadSeatConfigs(url: string = DEFAULTS.seatConfigs): Promise<void> {
+  setSeatConfigs(await fetchJson<SeatConfigFile>(url));
 }
 
 export function loadAircraftData(urls: AircraftLoadUrls = {}): Promise<void> {

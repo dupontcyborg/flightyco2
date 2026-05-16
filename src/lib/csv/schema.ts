@@ -26,24 +26,26 @@ const trimmedString = z
   .transform((s) => s.trim())
   .transform((s) => (s.length === 0 ? null : s));
 
-export const FlightyRowSchema = z
-  .object({
-    Date: z.string(),
-    Airline: trimmedString.nullable(),
-    Flight: trimmedString.nullable(),
-    From: z.string().length(3),
-    To: z.string().length(3),
-    Canceled: z.string().transform((v) => v.toLowerCase() === "true"),
-    "Diverted To": trimmedString.nullable(),
-    "Aircraft Type Name": trimmedString.nullable(),
-    "Cabin Class": trimmedString.nullable(),
-    "Gate Departure (Scheduled)": trimmedString.nullable(),
-    "Flight Flighty ID": z.string(),
-    "Departure Airport Flighty ID": trimmedString.nullable(),
-    "Arrival Airport Flighty ID": trimmedString.nullable(),
-    "Aircraft Type Flighty ID": trimmedString.nullable(),
-  })
-  .passthrough();
+// `looseObject` (Zod 4) preserves unknown keys on the parsed output — the
+// same semantics as Zod 3's deprecated `.passthrough()`. We need this
+// because Flighty may add new columns over time and we don't want them
+// silently dropped before downstream code can see them.
+export const FlightyRowSchema = z.looseObject({
+  Date: z.string(),
+  Airline: trimmedString.nullable(),
+  Flight: trimmedString.nullable(),
+  From: z.string().length(3),
+  To: z.string().length(3),
+  Canceled: z.string().transform((v) => v.toLowerCase() === "true"),
+  "Diverted To": trimmedString.nullable(),
+  "Aircraft Type Name": trimmedString.nullable(),
+  "Cabin Class": trimmedString.nullable(),
+  "Gate Departure (Scheduled)": trimmedString.nullable(),
+  "Flight Flighty ID": z.string(),
+  "Departure Airport Flighty ID": trimmedString.nullable(),
+  "Arrival Airport Flighty ID": trimmedString.nullable(),
+  "Aircraft Type Flighty ID": trimmedString.nullable(),
+});
 
 export type FlightyRow = z.infer<typeof FlightyRowSchema>;
 

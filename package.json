@@ -48,7 +48,7 @@
     "satori-html": "^0.3.2",
     "tailwindcss": "^4.3.0",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "vitest": "^4.1.5",
     "yaml": "^2.8.4"
   }

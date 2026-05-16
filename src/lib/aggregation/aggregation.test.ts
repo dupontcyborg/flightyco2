@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { beforeEach, describe, expect, it } from "vitest";
 import { parseFlightyCsv } from "../csv/parse.ts";
 import type { CabinClass, ParsedFlight } from "../csv/schema.ts";
@@ -20,10 +20,15 @@ import type { EnrichedFlight } from "./types.ts";
 
 beforeEach(() => bootstrapTestData());
 
+// Aggregation suite locks shape assertions to nicolas's personal Flighty
+// export, which is gitignored. Skip cleanly when absent (fresh clone, CI);
+// canonical-fixture.csv exercises the same code paths in integration.test.ts.
+const FIXTURE = repoPath("sample_data/personal-export.csv");
+const HAVE_FIXTURE = existsSync(FIXTURE);
+const describeIfFixture = HAVE_FIXTURE ? describe : describe.skip;
+
 function loadFixture(): ParsedFlight[] {
-  return parseFlightyCsv(
-    readFileSync(repoPath("sample_data/FlightyExport-2026-05-10 (2).csv"), "utf8"),
-  ).flights;
+  return parseFlightyCsv(readFileSync(FIXTURE, "utf8")).flights;
 }
 
 const calcTim = (input: EmissionInput): EmissionResult =>
@@ -31,7 +36,7 @@ const calcTim = (input: EmissionInput): EmissionResult =>
 
 // ──────────────────────────────────────────────────────────────── enrichFlights ──
 
-describe("enrichFlights", () => {
+describeIfFixture("enrichFlights", () => {
   it("partitions into enriched / cancelled / unresolved", () => {
     const flights = loadFixture();
     const { enriched, cancelled, unresolved } = enrichFlights(flights, calcTim);
@@ -103,7 +108,7 @@ describe("enrichFlights", () => {
 
 // ─────────────────────────────────────────────────────────── by-year aggregation ──
 
-describe("aggregateByYear", () => {
+describeIfFixture("aggregateByYear", () => {
   it("returns years in ascending order", () => {
     const flights = loadFixture();
     const { enriched } = enrichFlights(flights, calcTim);
@@ -135,7 +140,7 @@ describe("aggregateByYear", () => {
 
 // ────────────────────────────────────────────────────────── by-month aggregation ──
 
-describe("aggregateByMonth", () => {
+describeIfFixture("aggregateByMonth", () => {
   it("orders by year then month", () => {
     const flights = loadFixture();
     const { enriched } = enrichFlights(flights, calcTim);
@@ -169,7 +174,7 @@ describe("aggregateByMonth", () => {
 
 // ───────────────────────────────────────────────────────── by-aircraft aggregation ──
 
-describe("aggregateByAircraft", () => {
+describeIfFixture("aggregateByAircraft", () => {
   it("returns in descending order by total emissions", () => {
     const flights = loadFixture();
     const { enriched } = enrichFlights(flights, calcTim);
@@ -199,7 +204,7 @@ describe("aggregateByAircraft", () => {
 
 // ─────────────────────────────────────────────────────────── by-cabin aggregation ──
 
-describe("aggregateByCabin", () => {
+describeIfFixture("aggregateByCabin", () => {
   it("returns all 4 cabin classes", () => {
     const flights = loadFixture();
     const { enriched } = enrichFlights(flights, calcTim);
@@ -219,7 +224,7 @@ describe("aggregateByCabin", () => {
 
 // ──────────────────────────────────────────────────────────────── top-N flights ──
 
-describe("topNFlights", () => {
+describeIfFixture("topNFlights", () => {
   it("returns the N highest-emission flights, descending", () => {
     const flights = loadFixture();
     const { enriched } = enrichFlights(flights, calcTim);
@@ -248,7 +253,7 @@ describe("topNFlights", () => {
 
 // ──────────────────────────────────────────────────────────────── data quality ──
 
-describe("summarizeDataQuality", () => {
+describeIfFixture("summarizeDataQuality", () => {
   it("counts cancelled flights separately from quality histogram", () => {
     const flights = loadFixture();
     const q = summarizeDataQuality(flights);
@@ -266,7 +271,7 @@ describe("summarizeDataQuality", () => {
   });
 });
 
-describe("summarizeEnrichedQuality", () => {
+describeIfFixture("summarizeEnrichedQuality", () => {
   it("counts TIM-to-DEFRA fallbacks and cabin-assumed flights", () => {
     const flights = loadFixture();
     const { enriched } = enrichFlights(flights, calcTim);
