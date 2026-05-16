@@ -22,7 +22,7 @@ import Footer from "./Footer.svelte";
 import TopBar from "./TopBar.svelte";
 import Upload from "./Upload.svelte";
 
-type ModalKind = "methodology" | "howto" | null;
+type ModalKind = "methodology" | "howto" | "climate" | null;
 type Screen = "upload" | "crunching" | "dashboard";
 
 interface Props {
@@ -71,13 +71,17 @@ let selectedFlight: EnrichedFlight | null = $state(null);
 type ModalCmp = Component<{ onClose: () => void }>;
 let methodologyCmp: ModalCmp | null = $state(null);
 let howtoCmp: ModalCmp | null = $state(null);
+let climateCmp: ModalCmp | null = $state(null);
 
-async function openModal(kind: "methodology" | "howto") {
+async function openModal(kind: "methodology" | "howto" | "climate") {
   if (kind === "methodology" && !methodologyCmp) {
     methodologyCmp = (await import("./MethodologyModal.svelte")).default as ModalCmp;
   }
   if (kind === "howto" && !howtoCmp) {
     howtoCmp = (await import("./HowToModal.svelte")).default as ModalCmp;
+  }
+  if (kind === "climate" && !climateCmp) {
+    climateCmp = (await import("./ClimateBudgetModal.svelte")).default as ModalCmp;
   }
   modal = kind;
 }
@@ -249,7 +253,7 @@ const scopeView = $derived(bundle ? buildScopeView(bundle, scope) : null);
   <div class="stage">
     {#if screen === "upload"}
       <div class="screen" transition:fade={{ duration: 180 }}>
-        <Upload {loadSample} {handleFile} loading={false} error={loadError} />
+        <Upload {loadSample} {handleFile} loading={false} error={loadError} onShowHowTo={() => openModal("howto")} />
       </div>
     {:else if screen === "crunching"}
       <div class="screen" transition:fade={{ duration: 180 }}>
@@ -264,6 +268,7 @@ const scopeView = $derived(bundle ? buildScopeView(bundle, scope) : null);
             {cabinFallback}
             onChangeCabinFallback={changeCabinFallback}
             onPickFlight={(f) => (selectedFlight = f)}
+            onOpenModal={(k) => openModal(k)}
             bind:rfi
             bind:scope
           />
@@ -279,6 +284,9 @@ const scopeView = $derived(bundle ? buildScopeView(bundle, scope) : null);
     <Cmp onClose={() => (modal = null)} />
   {:else if modal === "howto" && howtoCmp}
     {@const Cmp = howtoCmp}
+    <Cmp onClose={() => (modal = null)} />
+  {:else if modal === "climate" && climateCmp}
+    {@const Cmp = climateCmp}
     <Cmp onClose={() => (modal = null)} />
   {/if}
 

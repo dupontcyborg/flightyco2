@@ -4,8 +4,9 @@ interface Props {
   handleFile: (file: File) => Promise<void>;
   loading: boolean;
   error: string | null;
+  onShowHowTo: () => void;
 }
-let { loadSample, handleFile, loading, error }: Props = $props();
+let { loadSample, handleFile, loading, error, onShowHowTo }: Props = $props();
 
 let fileInput: HTMLInputElement | undefined = $state();
 let dragging = $state(false);
@@ -37,7 +38,7 @@ const showGlobe = $derived(
         Your Flighty<br />history, in tons<br />of CO<sub>2</sub>.
       </h1>
       <p class="ft-sub">
-        Drop your Flighty CSV and see the CO<sub>2</sub> footprint of your
+        Drop your <button type="button" class="ft-inline-link" onclick={onShowHowTo}>Flighty CSV</button> and see the CO<sub>2</sub> footprint of your
         travel history — including non-CO<sub>2</sub> warming effects.
         Computed locally with Google's Travel Impact Model and DEFRA 2024,
         so your data never leaves your browser.
@@ -135,6 +136,22 @@ const showGlobe = $derived(
     color: var(--color-text2);
     max-width: 34em;
     margin: 0 0 28px;
+  }
+  .ft-inline-link {
+    background: none;
+    padding: 0;
+    font: inherit;
+    color: var(--color-text2);
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 600;
+    border: none;
+    border-bottom: 1px dotted var(--color-text3);
+    border-radius: 0;
+  }
+  .ft-inline-link:hover {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
   }
   .ft-drop {
     border: 1.5px dashed var(--color-line);

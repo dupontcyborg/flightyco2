@@ -14,6 +14,7 @@ interface Props {
   cabinFallback: CabinClass;
   onChangeCabinFallback: (next: CabinClass) => void;
   onPickFlight?: (f: EnrichedFlight) => void;
+  onOpenModal?: (kind: "methodology" | "howto" | "climate") => void;
   rfi: boolean;
   scope: ScopeKey;
 }
@@ -23,6 +24,7 @@ let {
   cabinFallback,
   onChangeCabinFallback,
   onPickFlight,
+  onOpenModal,
   rfi = $bindable(),
   scope = $bindable(),
 }: Props = $props();
@@ -136,13 +138,19 @@ const distanceFactor = $derived(distanceUnit === "mi" ? KM_TO_MI : 1);
       </div>
     </div>
 
-    <div class="stat">
-      <div class="ft-eyebrow">PARIS BUDGET</div>
+    <button
+      class="stat"
+      type="button"
+      onclick={() => onOpenModal?.("climate")}
+      aria-label="What does this multiple mean?"
+      title="What does this mean?"
+    >
+      <div class="ft-eyebrow">CLIMATE BUDGET</div>
       <div class="ft-rounded ft-num stat-num" class:over={parisMult > 1}>
         {tParis.value.toFixed(1)}<span class="stat-unit">×</span>
       </div>
       <div class="stat-foot">of your annual 1.5°C budget</div>
-    </div>
+    </button>
 
     <button
       class="stat stat-distance"
@@ -160,7 +168,13 @@ const distanceFactor = $derived(distanceUnit === "mi" ? KM_TO_MI : 1);
       </div>
     </button>
 
-    <div class="stat stat-methodology">
+    <button
+      class="stat stat-methodology"
+      type="button"
+      onclick={() => onOpenModal?.("methodology")}
+      aria-label="How we calculate the numbers"
+      title="How we calculate"
+    >
       <div class="ft-eyebrow">METHODOLOGY</div>
       <div class="ft-rounded ft-num stat-num">
         {Math.round(tCoverage.value)}<span class="stat-unit">% TIM</span>
@@ -172,7 +186,7 @@ const distanceFactor = $derived(distanceUnit === "mi" ? KM_TO_MI : 1);
           all {coverage.total} flights computed with TIM
         {/if}
       </div>
-    </div>
+    </button>
   </div>
 
   <FlightList
