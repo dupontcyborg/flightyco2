@@ -2,8 +2,6 @@
   made with <span class="heart" aria-hidden="true">♥</span><span class="sr">love</span> in brooklyn by
   <a href="https://nico.codes" target="_blank" rel="noreferrer">nico dupont</a>
   <span class="sep">·</span>
-  mit licensed
-  <span class="sep">·</span>
   <a href="https://github.com/dupontcyborg/flightyco2" target="_blank" rel="noreferrer">source code</a>
 </footer>
 
