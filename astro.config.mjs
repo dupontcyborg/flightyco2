@@ -5,6 +5,14 @@ import { defineConfig } from "astro/config";
 export default defineConfig({
   site: "https://flightyco2.com",
   integrations: [svelte({ emitCss: true })],
+  build: {
+    // Inline all stylesheets into the HTML head. Removes 2 render-blocking
+    // CSS fetches (~210ms on a cold mobile visit per Lighthouse) at the
+    // cost of ~14 KiB brotli in the HTML payload. Net win for cold visits;
+    // warm visits lose CSS cache reuse but the HTML itself is `max-age=0,
+    // must-revalidate` anyway so the CSS would re-validate each time too.
+    inlineStylesheets: "always",
+  },
   vite: {
     plugins: [tailwindcss()],
     build: {
