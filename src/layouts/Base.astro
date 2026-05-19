@@ -1,5 +1,6 @@
 ---
 import "~/styles/global.css";
+import { ASSETS } from "~/lib/asset-manifest.ts";
 
 interface Props {
   title?: string;
@@ -13,6 +14,20 @@ const {
 
 const canonical = new URL(Astro.url.pathname, Astro.site).toString();
 const ogImage = new URL("/og.png", Astro.site).toString();
+
+// Reference data that the app needs after CSV upload. Prefetched at low
+// priority so the bytes are in the cache by the time the user clicks
+// upload, without landing in the LCP critical request chain (rel=prefetch
+// is excluded from Lighthouse's critical chain).
+const prefetchAssets = [
+  ASSETS.airports,
+  ASSETS.airlines,
+  ASSETS.aircraftMapping,
+  ASSETS.fuelBurn,
+  ASSETS.seatConfigs,
+  ASSETS.gaiaAirports,
+  ASSETS.gaiaCountries,
+];
 ---
 
 <!doctype html>
@@ -25,6 +40,10 @@ const ogImage = new URL("/og.png", Astro.site).toString();
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    {prefetchAssets.map((href) => (
+      <link rel="prefetch" href={href} as="fetch" crossorigin="anonymous" />
+    ))}
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="flightyco2" />

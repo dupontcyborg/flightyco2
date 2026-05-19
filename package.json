@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "PUBLIC_DEBUG_IMPORT=1 astro dev",
-    "build": "astro build",
+    "build": "astro build && tsx scripts/inject-chunk-prefetch.ts",
     "prebuild": "tsx scripts/hash-public-assets.ts && tsx scripts/build-og.ts",
     "predev": "tsx scripts/hash-public-assets.ts",
     "hash-assets": "tsx scripts/hash-public-assets.ts",

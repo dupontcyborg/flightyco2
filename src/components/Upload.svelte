@@ -5,8 +5,9 @@ interface Props {
   loading: boolean;
   error: string | null;
   onShowHowTo: () => void;
+  onPrewarm: () => void;
 }
-let { loadSample, handleFile, loading, error, onShowHowTo }: Props = $props();
+let { loadSample, handleFile, loading, error, onShowHowTo, onPrewarm }: Props = $props();
 
 let fileInput: HTMLInputElement | undefined = $state();
 let dragging = $state(false);
@@ -50,6 +51,8 @@ const showGlobe = $derived(
         ondragover={(e) => { e.preventDefault(); dragging = true; }}
         ondragleave={() => (dragging = false)}
         ondrop={onDrop}
+        onpointerenter={onPrewarm}
+        onfocusin={onPrewarm}
         role="button"
         tabindex="0"
         onclick={() => fileInput?.click()}
@@ -68,7 +71,7 @@ const showGlobe = $derived(
         </div>
       </div>
 
-      <button type="button" class="ft-sample-link" onclick={loadSample} disabled={loading}>
+      <button type="button" class="ft-sample-link" onclick={loadSample} onpointerenter={onPrewarm} onfocus={onPrewarm} disabled={loading}>
         Try with sample data &rarr;
       </button>
 

@@ -90,15 +90,13 @@ const SAMPLE_URL = "/sample/canonical-fixture.csv";
 const STORAGE_KEY = "flightyco2-csv";
 const REPORT_PATH = "/report";
 
-/*
- * Pre-warm the reference data (~310 KB brotli across 6 JSONs) while the
- * user is reading the landing page, so by the time they upload a CSV
- * processing is just parse + enrich (sub-50ms). If the user clicks
- * upload mid-prefetch, processCsv shares the same inflight promise via
- * the loader's internal cache — no double-fetch. Errors are swallowed
- * here because processCsv will surface them when actually invoked.
- */
-$effect(() => {
+// Idempotent: kicks off reference-data + modal prefetch. Called on user
+// intent (hover/focus the dropzone or sample button) or after window.load
+// as a fallback, so neither lands in the landing page's critical chain.
+let prewarmed = false;
+function prewarm() {
+  if (prewarmed) return;
+  prewarmed = true;
   loadAllReferenceData({
     airports: ASSETS.airports,
     airlines: ASSETS.airlines,
@@ -110,11 +108,26 @@ $effect(() => {
   }).catch(() => {
     // Silent — the real upload path will report any failure with context.
   });
+  if (!methodologyCmp) {
+    import("./MethodologyModal.svelte").then((m) => {
+      methodologyCmp = m.default as ModalCmp;
+    });
+  }
+  if (!howtoCmp) {
+    import("./HowToModal.svelte").then((m) => {
+      howtoCmp = m.default as ModalCmp;
+    });
+  }
+}
 
+$effect(() => {
   // Restore from sessionStorage if the user landed on /report (refresh /
   // direct link). Empty storage on /report → bounce home.
   const onReport = window.location.pathname.startsWith(REPORT_PATH);
   if (onReport) {
+    // On /report we need reference data immediately — there's no landing
+    // page to amortize against, the user's already past the upload step.
+    prewarm();
     const stored = sessionStorage.getItem(STORAGE_KEY);
     if (stored) {
       restoreCsv(stored);
@@ -130,23 +143,21 @@ $effect(() => {
   };
   window.addEventListener("popstate", onPop);
 
-  // Warm the lazy modal chunks in idle time so the first open is instant.
-  const idle = (cb: () => void) =>
-    "requestIdleCallback" in window
-      ? (window as Window & typeof globalThis).requestIdleCallback(cb)
-      : setTimeout(cb, 200);
-  idle(() => {
-    if (!methodologyCmp) {
-      import("./MethodologyModal.svelte").then((m) => {
-        methodologyCmp = m.default as ModalCmp;
-      });
-    }
-    if (!howtoCmp) {
-      import("./HowToModal.svelte").then((m) => {
-        howtoCmp = m.default as ModalCmp;
-      });
-    }
-  });
+  // Fallback: warm after the page has fully loaded, then in idle time, so
+  // a user who never hovers still gets a primed cache before clicking
+  // upload — but it stays out of LCP's critical chain.
+  const scheduleIdleWarm = () => {
+    const idle = (cb: () => void) =>
+      "requestIdleCallback" in window
+        ? (window as Window & typeof globalThis).requestIdleCallback(cb, { timeout: 3000 })
+        : setTimeout(cb, 1500);
+    idle(prewarm);
+  };
+  if (document.readyState === "complete") {
+    scheduleIdleWarm();
+  } else {
+    window.addEventListener("load", scheduleIdleWarm, { once: true });
+  }
 
   return () => window.removeEventListener("popstate", onPop);
 });
@@ -253,7 +264,7 @@ const scopeView = $derived(bundle ? buildScopeView(bundle, scope) : null);
   <div class="stage">
     {#if screen === "upload"}
       <div class="screen" transition:fade={{ duration: 180 }}>
-        <Upload {loadSample} {handleFile} loading={false} error={loadError} onShowHowTo={() => openModal("howto")} />
+        <Upload {loadSample} {handleFile} loading={false} error={loadError} onShowHowTo={() => openModal("howto")} onPrewarm={prewarm} />
       </div>
     {:else if screen === "crunching"}
       <div class="screen" transition:fade={{ duration: 180 }}>
