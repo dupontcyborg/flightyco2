@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.15/schema.json",
+  "$schema": "https://biomejs.dev/schema/2.5.0/schema.json",
   "files": {
     "includes": [
       "**",
@@ -11,7 +11,8 @@
       "!public",
       "!coverage",
       "!**/*.css",
-      "!**/*.astro"
+      "!**/*.astro",
+      "!**/*.svg"
     ]
   },
   "overrides": [
@@ -46,7 +47,7 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
       "style": {
         "noNonNullAssertion": "warn"
       }
