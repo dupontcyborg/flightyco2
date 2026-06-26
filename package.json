@@ -29,7 +29,7 @@
     "data:defra": "tsx scripts/update-defra.ts"
   },
   "dependencies": {
-    "@astrojs/svelte": "^8.1.2",
+    "@astrojs/svelte": "^9.0.0",
     "astro": "^6.4.8",
     "numpy-ts": "^1.4.0",
     "papaparse": "^5.5.3",
