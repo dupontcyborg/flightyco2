@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@astrojs/svelte": "^9.0.1",
-    "astro": "^7.0.6",
+    "astro": "^7.0.7",
     "numpy-ts": "^1.4.0",
     "papaparse": "^5.5.3",
     "svelte": "^5.56.3",
