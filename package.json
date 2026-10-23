@@ -37,14 +37,14 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.9",
+    "@astrojs/check": "^0.9.11",
     "@biomejs/biome": "^2.5.15",
     "@resvg/resvg-js": "^2.6.2",
     "@tailwindcss/vite": "^4.3.1",
     "@types/papaparse": "^5.5.2",
-    "@vitest/coverage-v8": "^5.0.3",
+    "@vitest/coverage-v8": "^5.0.5",
     "exceljs": "^4.4.0",
-    "satori": "^0.35.0",
+    "satori": "^0.63.0",
     "satori-html": "^0.3.2",
     "tailwindcss": "^4.3.0",
     "tsx": "^4.23.15",
