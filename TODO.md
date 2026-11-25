@@ -26,7 +26,7 @@ The `src/lib/` tree is the calculation engine. UI calls in, never the other way.
 - [x] Extracted verified DEFRA 2024 factors from `data/uk-gov/ghg-conversion-factors-2024-full.xlsx` into `public/defra-factors.json` (`npm run data:defra`). All 4 haul tiers, 215-country haul classification.
 - [x] Confirmed DEFRA 2024 RF multiplier is 1.7× CO₂ (not 1.9×); total kgCO₂e ratio = 1.694. We keep `nonCo2Multiplier: 1.9` as default but the value is one-line configurable.
 - [x] `DEFRA-2024-draft` → `DEFRA-2024-v1.1`. Factor values now match published spreadsheet to ≥5 decimal places.
-- [ ] *(deferred to v1.1)* Adopt country-pair haul classification (Domestic UK / Short-haul UK / Long-haul UK / International non-UK), replacing the uniform "International non-UK" tier we use today. Data side is ready (`public/defra-factors.json` has the table); calculator restructure pending.
+- [ ] _(deferred to v1.1)_ Adopt country-pair haul classification (Domestic UK / Short-haul UK / Long-haul UK / International non-UK), replacing the uniform "International non-UK" tier we use today. Data side is ready (`public/defra-factors.json` has the table); calculator restructure pending.
 
 ### Phase 1 — Test infrastructure + unit tests for existing modules ✅
 
@@ -91,7 +91,7 @@ The `src/lib/` tree is the calculation engine. UI calls in, never the other way.
 - [x] **Codeshare / double-booking dedupe.** Heuristic key: `(date, from, to, scheduled_dep_time)`. Add a tally of deduped flights so it's visible, never silent.
 - [x] **Diverted-flight handling.** When `Diverted To` is set, use that as the actual arrival airport for distance calculation. Currently we'd compute distance to the scheduled destination.
 - [x] **Malformed / empty / non-Flighty CSV error states.** Distinguish "wrong file format" from "valid CSV with bad rows" in the UI.
-- [x] **Canonical anonymized test CSV.** Derive a small public fixture from nicolas's Flighty export — *same flights, smaller subset, adjusted* so private travel patterns aren't exposed. Engineer the subset to hit every edge case in one file:
+- [x] **Canonical anonymized test CSV.** Derive a small public fixture from nicolas's Flighty export — _same flights, smaller subset, adjusted_ so private travel patterns aren't exposed. Engineer the subset to hit every edge case in one file:
   - Each cabin class (economy / premium-economy / business / first) at least once, plus a row with no cabin recorded
   - Each common haul-length bucket (domestic short, short-haul, long-haul transatlantic, long-haul transpacific)
   - Several aircraft families incl. one that exercises substring fallback (e.g. `Boeing 737-900ER` → `737-900`) and one alias hit (e.g. `Bombardier CRJ900`)
@@ -100,7 +100,7 @@ The `src/lib/` tree is the calculation engine. UI calls in, never the other way.
   - Routes that exercise GAIA tier 1 (specific airport pair), tier 2 (country pair only), and tier 3 (default 1.052 fallback)
   - A non-Flighty / malformed line to test error states
   - Sanitize dates (e.g. shift by N years or randomize), drop or redact `Notes`/`PNR`/`Seat`/`Tail Number` columns
-  Should live at `sample_data/fixture.csv` and be committed (the `FlightyExport-*` originals stay gitignored).
+    Should live at `sample_data/fixture.csv` and be committed (the `FlightyExport-*` originals stay gitignored).
 - [x] **Other synthetic fixtures** if useful: a huge CSV for perf testing, a corrupt CSV for error-state UI.
 
 ### Aggregation (between calc and UI)
@@ -183,7 +183,7 @@ The `src/lib/` tree is the calculation engine. UI calls in, never the other way.
 
 ## v1.1 — next
 
-- [X] **Airline logos in flight list**. Port `overhead/assets/*.svg` (80 brand marks, IATA-named, ~50 KB total) into `src/assets/airlines/` (or `public/airlines/`). Render next to the IATA flight number via `?raw` inline or `<img>`. Fall back to text when no asset for the IATA.
+- [x] **Airline logos in flight list**. Port `overhead/assets/*.svg` (80 brand marks, IATA-named, ~50 KB total) into `src/assets/airlines/` (or `public/airlines/`). Render next to the IATA flight number via `?raw` inline or `<img>`. Fall back to text when no asset for the IATA.
 - [ ] **Share card** (PNG export of summary, austere "receipt" aesthetic, no Wrapped-y badges).
 - [ ] Per-route stage-length adjustment in TIM (short-haul less efficient than long-haul for same airframe).
 - [ ] Full TIM JSON dataset with route-bucketed lookups, not just airframe-level averages.

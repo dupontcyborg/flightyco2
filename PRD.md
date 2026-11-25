@@ -40,6 +40,7 @@ No login. No email capture. No "sign up to see your full results." Ever.
 ## Functional Requirements
 
 ### CSV Processing
+
 - Parse Flighty CSV exports. Sniff header row; do not hardcode column positions.
 - Validate rows with Zod schemas. Bad rows go to a "skipped" tally, not silently dropped.
 - Detect and dedupe codeshare/double-booked flights (same date + route + aircraft + similar time).
@@ -65,6 +66,7 @@ Two calculation methods are available, both shipping in v1. The user toggles bet
 All emissions reported in kg CO₂e. Aggregate to metric tons in UI.
 
 ### Airport Database
+
 - Inline-JSON-in-TypeScript shipped with the app, lazy-parsed on first lookup. ~4,500 airports (large + medium types).
 - Source: **OurAirports** (public domain, actively maintained), filtered to entries with valid 3-letter IATA codes.
 - Format: `{ "IATA": [lat, lon] }` with coordinates rounded to 4 decimals (~11m precision; far below airport-reference-point variance).
@@ -74,6 +76,7 @@ All emissions reported in kg CO₂e. Aggregate to metric tons in UI.
 - **Future optimization (not v1):** packed binary format (IATA + lat/lon scaled int32 = ~9B per record, ~30KB compressed) decoded into typed arrays at boot. Only worth doing if bundle measurements push us over budget.
 
 ### Results: Summary View (per year)
+
 - Headline: total tons CO₂e for selected year.
 - Comparisons: vs. average American annual total (~16t), vs. 1.5°C-aligned individual budget (~2t), vs. equivalent km driven.
 - Monthly stacked bar chart of emissions, color-coded by haul length.
@@ -85,11 +88,13 @@ All emissions reported in kg CO₂e. Aggregate to metric tons in UI.
 - Methodology drawer: one-line summary always visible, full breakdown one click away. Toggles for non-CO₂ multiplier and methodology version.
 
 ### Results: Detail View (per flight)
+
 - Route, date, aircraft, cabin, distance, kg CO₂e (with and without non-CO₂ multiplier, both shown).
 - Data quality indicator and any caveats (e.g., "aircraft type inferred").
 - "What if?" sliders: cabin class, aircraft type, direct vs. connecting. Each updates the per-flight estimate live.
 
 ### Cabin Class Fallback
+
 - Many older Flighty rows have an empty `Cabin Class` field. Calculator must not silently default to economy.
 - After upload, surface a single toggle: "Mostly economy / Mostly business / Mixed (set per-flight)."
 - The toggle applies **only** to flights missing cabin data. Flights with a recorded cabin class are never overridden.
@@ -100,10 +105,12 @@ All emissions reported in kg CO₂e. Aggregate to metric tons in UI.
 - Long-haul caveat in copy: cabin class is the largest single lever on long-haul and nearly cosmetic on short hops. Surface this contextually based on the user's data.
 
 ### Sharing
+
 - **Deferred from v1.** No share card, no PNG export, no canvas work. The "honest receipt" aesthetic still governs the results page itself.
 - May return in a later version. When it does, the design direction below still applies.
 
 ### Persistence
+
 - Cache decoded results in `localStorage` keyed by a hash of the CSV. Re-uploading the same file returns instantly.
 - No remote storage. No analytics that capture user data. Privacy-respecting analytics (e.g., Plausible) for page-level metrics only.
 
@@ -132,6 +139,7 @@ All emissions reported in kg CO₂e. Aggregate to metric tons in UI.
 ## Methodology Transparency
 
 The methodology is the product. The site must include:
+
 - A `/methodology` page with the full calculation explained in plain language, including formulas, factor sources, version, and known limitations.
 - A "what's not counted" section: tech stops, ferry flights flown empty, manufacturing emissions of aircraft, airport ground operations.
 - Citations to DEFRA, ICAO, Google TIM, and Lee et al. 2021 (non-CO₂ effects).
